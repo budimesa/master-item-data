@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,17 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::resource('brands', BrandController::class);
+
+Route::get('/master/general-data', function () {
+    return Inertia::render('GeneralData');
+})->name('general-data');
+
+// Rute untuk halaman "Item Data"
+Route::get('/master/item-data', function () {
+    return Inertia::render('ItemData');
+})->name('item-data');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

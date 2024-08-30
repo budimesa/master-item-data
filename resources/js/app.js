@@ -3,7 +3,9 @@ import '../css/app.css';
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import PrimeVue from "primevue/config";
+import 'primeicons/primeicons.css'
 // import Lara from './presets/lara';
 import Aura from '../css/presets/aura'
 
@@ -19,6 +21,7 @@ createInertiaApp({
                 unstyled: true,
                 pt: Aura
             })
+            .use(ZiggyVue)
             .mount(el);
     },
     progress: {

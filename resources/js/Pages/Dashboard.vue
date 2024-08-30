@@ -1,7 +1,5 @@
 <template>
-    <div class="card">
-        <Button label="Search" icon="pi pi-search" iconPos="top" />
-
+    <div class="card mx-4">
         <DataTable v-model:filters="filters" :value="customers" paginator :rows="10" dataKey="id" filterDisplay="row" :loading="loading"
                 :globalFilterFields="['name', 'country.name', 'representative.name', 'status']">
             <template #header>
