@@ -1,226 +1,228 @@
 <template>
   <div class="card mx-4">
-      <DataTable v-model:filters="filters" :value="brands" paginator :rows="10" dataKey="id" filterDisplay="row" :loading="loading"
-              :globalFilterFields="['brand_name', 'country.name', 'representative.name', 'status']">
-          <template #header>
-              <div class="flex justify-end">
-                  <IconField>
-                      <InputIcon>
-                          <i class="pi pi-search" />
-                      </InputIcon>
-                      <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
-                  </IconField>
-              </div>
+      <Toolbar class="mb-6">
+          <template #start>
+              <Button label="New" icon="pi pi-plus" severity="success" class="mr-2" @click="openNew" />
+              <!-- <Button label="Delete" icon="pi pi-trash" severity="danger" @click="confirmDeleteSelected" :disabled="!selectedItems || !selectedItems.length" /> -->
           </template>
-          <template #empty> No customers found. </template>
-          <template #loading> Loading customers data. Please wait. </template>
-          <Column field="brand_name" header="Brand Name" style="min-width: 12rem">
-              <template #body="{ data }">
-                  {{ data.brand_name }}
-              </template>
-              <template #filter="{ filterModel, filterCallback }">
-                  <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Search by name" />
-              </template>
-          </Column>
-          <Column field="brand_code" header="Brand Code" style="min-width: 12rem">
-              <template #body="{ data }">
-                  {{ data.brand_code }}
-              </template>
-              <!-- <template #filter="{ filterModel, filterCallback }">
-                  <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Search by name" />
-              </template> -->
-          </Column>
-          <!-- <Column header="Country" filterField="country.name" style="min-width: 12rem">
-              <template #body="{ data }">
-                  <div class="flex items-center gap-2">
-                      <img alt="flag" src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png" :class="`flag flag-${data.country.code}`" style="width: 24px" />
-                      <span>{{ data.country.name }}</span>
+          <template #end>
+              <Button label="Export" icon="pi pi-upload" severity="help" @click="exportCSV($event)" />
+          </template>
+      </Toolbar>
+      <DataTable ref="dt"
+              v-model:selection="selectedItems"
+              :value="brands"
+              dataKey="id"
+              :paginator="true"
+              :rows="10"
+              :filters="filters"
+              paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+              :rowsPerPageOptions="[5, 10, 25]"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+          
+              <template #header>
+                  <div class="flex flex-wrap gap-2 items-center justify-between">
+                      <h4 class="m-0">Manage Brands</h4>
+                      <IconField>
+                          <InputIcon>
+                              <i class="pi pi-search" />
+                          </InputIcon>
+                          <InputText v-model="filters['global'].value" placeholder="Search..." />
+                      </IconField>
                   </div>
               </template>
-              <template #filter="{ filterModel, filterCallback }">
-                  <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Search by country" />
-              </template>
-          </Column>
-          <Column header="Agent" filterField="representative" :showFilterMenu="false" style="min-width: 14rem">
-              <template #body="{ data }">
-                  <div class="flex items-center gap-2">
-                      <img :alt="data.representative.name" :src="`https://primefaces.org/cdn/primevue/images/avatar/${data.representative.image}`" style="width: 32px" />
-                      <span>{{ data.representative.name }}</span>
-                  </div>
-              </template>
-              <template #filter="{ filterModel, filterCallback }">
-                  <MultiSelect v-model="filterModel.value" @change="filterCallback()" :options="representatives" optionLabel="name" placeholder="Any" style="min-width: 14rem" :maxSelectedLabels="1">
-                      <template #option="slotProps">
-                          <div class="flex items-center gap-2">
-                              <img :alt="slotProps.option.name" :src="`https://primefaces.org/cdn/primevue/images/avatar/${slotProps.option.image}`" style="width: 32px" />
-                              <span>{{ slotProps.option.name }}</span>
-                          </div>
-                      </template>
-                  </MultiSelect>
-              </template>
-          </Column>
-          <Column field="status" header="Status" :showFilterMenu="false" style="min-width: 12rem">
-              <template #body="{ data }">
-                  <Tag :value="data.status" :severity="getSeverity(data.status)" />
-              </template>
-              <template #filter="{ filterModel, filterCallback }">
-                  <Select v-model="filterModel.value" @change="filterCallback()" :options="statuses" placeholder="Select One" style="min-width: 12rem" :showClear="true">
-                      <template #option="slotProps">
-                          <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
-                      </template>
-                  </Select>
-              </template>
-          </Column>
-          <Column field="verified" header="Verified" dataType="boolean" style="min-width: 6rem">
-              <template #body="{ data }">
-                  <i class="pi" :class="{ 'pi-check-circle text-green-500': data.verified, 'pi-times-circle text-red-400': !data.verified }"></i>
-              </template>
-              <template #filter="{ filterModel, filterCallback }">
-                  <Checkbox v-model="filterModel.value" :indeterminate="filterModel.value === null" binary @change="filterCallback()" />
-              </template>
-          </Column> -->
+            <!-- <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column> -->
+            <Column field="id" header="ID" sortable style="min-width: 12rem"></Column>
+            <Column field="brand_name" header="Brand Name" sortable style="min-width: 16rem"></Column>
+            <Column field="brand_code" header="Brand Code" sortable style="min-width: 12rem"></Column>
+            <Column field="created_at" header="Created At" sortable style="min-width: 12rem"></Column>
+            <Column field="created_by" header="Created By" sortable style="min-width: 12rem"></Column>
+            <Column field="updated_at" header="Update At" sortable style="min-width: 12rem"></Column>
+            <Column field="updated_by" header="Update By" sortable style="min-width: 12rem"></Column>
+            <Column :exportable="false" style="min-width: 12rem" header="Actions" alignFrozen="right" frozen>
+            <template #body="slotProps">
+                <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="edit(slotProps.data)" />
+                <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDelete(slotProps.data)" />
+            </template>
+        </Column>
       </DataTable>
   </div>
+
+  <!-- <Dialog v-model:visible="brandDialog" :style="{ width: '450px' }" header="Brand Details" :modal="true">
+          <div class="flex flex-col gap-6">
+              <div>
+                  <label for="brand_name" class="block font-bold mb-3">Brand Name</label>
+                  <InputText id="brand_name" v-model.trim="brand.brand_name" required autofocus :invalid="submitted && !brand.brand_name" fluid />
+                  <small v-if="submitted && !brand.brand_name" class="text-red-500">Brand Name is required.</small>
+              </div>
+              <div>
+                  <label for="brand_code" class="block font-bold mb-3">Brand Code</label>
+                  <InputText id="brand_code" v-model="brand.brand_code" required fluid />
+                  <small v-if="submitted && !brand.brand_code" class="text-red-500">Brand Code is required.</small>
+              </div>
+          </div>
+
+          <template #footer>
+              <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
+              <Button label="Save" icon="pi pi-check" @click="save" />
+          </template>   
+      </Dialog> -->
+
+      <Dialog v-model:visible="brandDialog" :style="{ width: '450px' }" header="Brand Details" :modal="true">
+      <div class="flex flex-col gap-6">
+        <div>
+          <label for="brand_name" class="block font-bold mb-3">Brand Name</label>
+          <InputText id="brand_name" v-model.trim="brand.brand_name" required autofocus :invalid="submitted && !brand.brand_name" fluid />
+          <small v-if="submitted && !brand.brand_name" class="text-red-500">Brand Name is required.</small>
+        </div>
+        <div>
+          <label for="brand_code" class="block font-bold mb-3">Brand Code</label>
+          <InputText id="brand_code" v-model="brand.brand_code" required fluid />
+          <small v-if="submitted && !brand.brand_code" class="text-red-500">Brand Code is required.</small>
+        </div>
+      </div>
+
+      <template #footer>
+        <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
+        <Button label="Save" icon="pi pi-check" @click="save" />
+      </template>
+    </Dialog>
+
+      <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+          <div class="flex items-center gap-4">
+              <i class="pi pi-exclamation-triangle !text-3xl" />
+              <span v-if="brand"
+                  >Are you sure you want to delete <b>{{ brand.name }}</b
+                  >?</span
+              >
+          </div>
+          <template #footer>
+              <Button label="No" icon="pi pi-times" text @click="deleteDialog = false" />
+              <Button label="Yes" icon="pi pi-check" @click="deleteItem" />
+          </template>
+      </Dialog>
+
+      <Dialog v-model:visible="deleteBulkDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+          <div class="flex items-center gap-4">
+              <i class="pi pi-exclamation-triangle !text-3xl" />
+              <span v-if="brand">Are you sure you want to delete the selected brands?</span>
+          </div>
+          <template #footer>
+              <Button label="No" icon="pi pi-times" text @click="deleteBulkDialog = false" />
+              <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedItems" />
+          </template>
+      </Dialog>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
-const brands = ref([]);
-
-const customers = ref([
-    {
-        id: 1000,
-        name: 'James Buttww',
-        brand_name: 'James Buwoow',
-        country: {
-            name: 'Algeria',
-            code: 'dz'
-        },
-        company: 'Benton, John B Jr',
-        date: '2015-09-13',
-        status: 'unqualified',
-        verified: true,
-        activity: 17,
-        representative: {
-            name: 'Ioni Bowcher',
-            image: 'ionibowcher.png'
-        },
-        balance: 70663
-    },
-    {
-        id: 1001,
-        name: 'Josephine DarakJnr',
-        brand_name: 'James Buwoow',
-        country: {
-            name: 'Egypt',
-            code: 'eg'
-        },
-        company: 'Chan, Ross A Esq',
-        date: '2015-09-13',
-        status: 'qualified',
-        verified: true,
-        activity: 17,
-        representative: {
-            name: 'Amy Elsner',
-            image: 'amyelsner.png'
-        },
-        balance: 90663
-    },
-    {
-        id: 1002,
-        name: 'Art Venere',
-        brand_name: 'James Buwoow',
-        country: {
-            name: 'Algeria',
-            code: 'dz'
-        },
-        company: 'Chemel, James L Cpa',
-        date: '2015-09-13',
-        status: 'new',
-        verified: false,
-        activity: 17,
-        representative: {
-            name: 'Amy Elsner',
-            image: 'amyelsner.png'
-        },
-        balance: 90663
-    },
-    {
-        id: 1003,
-        name: 'Lenna Paprocki',
-        brand_name: 'James Buwoow',
-        country: {
-            name: 'Ecuador',
-            code: 'ec'
-        },
-        company: 'Feltz Printing Service',
-        date: '2015-09-13',
-        status: 'qualified',
-        verified: true,
-        activity: 17,
-        representative: {
-            name: 'Amy Elsner',
-            image: 'amyelsner.png'
-        },
-        balance: 90663
-    }
-]);
-
-const fetchData = async () => {
-  try {
-    const response = await axios.get(route('brands.index'));
-    brands.value = response.data.brands;
-    console.log(brands.value)
-  } catch (error) {
-    console.error('Error fetching brands:', error);
-  }
-};
+import { useToast } from 'primevue/usetoast';
+import axios from 'axios';
 
 onMounted(() => {
   fetchData();
 });
 
+const fetchData = async () => {
+    try {
+        const response = await axios.get(route('brands.index'));
+        brands.value = response.data.brands;
+    } catch (error) {
+        console.error('Error fetching brands:', error);
+    }
+};
+
+
+const toast = useToast();
+const dt = ref();
+const brands = ref([]);
+const brandDialog = ref(false);
+const deleteDialog = ref(false);
+const deleteBulkDialog = ref(false);
+const brand = ref({});
+const selectedItems = ref([]);
 const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  brand_name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-  brand_code: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-  'country.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-  representative: { value: null, matchMode: FilterMatchMode.IN },
-  status: { value: null, matchMode: FilterMatchMode.EQUALS },
-  verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+  'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
+const submitted = ref(false);
+const isEditMode = ref(false);
 
-const representatives = ref([
-  { name: 'Amy Elsner', image: 'amyelsner.png' },
-  { name: 'Anna Fali', image: 'annafali.png' },
-  { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-  { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-  { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-  { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-  { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-  { name: 'Onyama Limba', image: 'onyamalimba.png' },
-  { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-  { name: 'XuXue Feng', image: 'xuxuefeng.png' }
-]);
-
-const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
-const loading = ref(false); // Set to false as data is hardcoded
-
-const getSeverity = (status) => {
-  switch (status) {
-      case 'unqualified':
-          return 'danger';
-      case 'qualified':
-          return 'success';
-      case 'new':
-          return 'info';
-      case 'negotiation':
-          return 'warn';
-      case 'renewal':
-          return null;
+const openNew = () => {
+    brand.value = { brand_name: '', brand_code: '' };
+    submitted.value = false;
+    isEditMode.value = false;
+    brandDialog.value = true;
+};
+const hideDialog = () => {
+  brandDialog.value = false;
+  submitted.value = false;
+};
+const save = async () => {
+  submitted.value = true;
+  
+  if (brand.value.brand_name.trim() && brand.value.brand_code.trim()) {
+    try {
+      if (isEditMode.value) {
+        await axios.put(route('brands.update', brand.value.id), {
+          brand_name: brand.value.brand_name,
+          brand_code: brand.value.brand_code,
+        });
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Brand updated successfully', life: 3000 });
+      } else {
+        await axios.post(route('brands.store'), {
+          brand_name: brand.value.brand_name,
+          brand_code: brand.value.brand_code,
+        });
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Brand created successfully', life: 3000 });
+      }
+      fetchData();
+      hideDialog();
+    } catch (error) {
+      console.error('Error saving brand:', error.response.data);
+      toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save brand', life: 3000 });
+    }
   }
-}
+};
+const edit = (brandData) => {
+  brand.value = { ...brandData };
+  submitted.value = false;
+  isEditMode.value = true;
+  brandDialog.value = true;
+};
+const confirmDelete = (emp) => {
+  brand.value = emp;
+  deleteDialog.value = true;
+};
+const deleteItem = () => {
+  brands.value = brands.value.filter(val => val.id !== brand.value.id);
+  deleteDialog.value = false;
+  brand.value = {};
+  toast.add({severity:'success', summary: 'Successful', detail: 'Brand Deleted', life: 3000});
+};
+const findIndexById = (id) => {
+  let index = -1;
+  for (let i = 0; i < brands.value.length; i++) {
+      if (brands.value[i].id === id) {
+          index = i;
+          break;
+      }
+  }
+
+  return index;
+};
+const exportCSV = () => {
+  dt.value.exportCSV();
+};
+const confirmDeleteSelected = () => {
+  deleteBulkDialog.value = true;
+};
+const deleteSelectedItems = () => {
+  brands.value = brands.value.filter((val) => !selectedItems.value.includes(val));
+  deleteBulkDialog.value = false;
+  selectedItems.value = null;
+  toast.add({severity:'success', summary: 'Successful', detail: 'Brands Deleted', life: 3000});
+};
 </script>
 
 <style scoped>

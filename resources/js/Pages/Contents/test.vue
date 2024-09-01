@@ -1,201 +1,54 @@
 <template>
-    <div>
-      <DataTable :items="brands" :columns="columns" @edit-item="editItem" @delete-item="deleteConfirmModal">
-        <template #actions>
-          <PrimaryButton @click="createItem">Add New</PrimaryButton>
-        </template>
-      </DataTable>
-  
-      <!-- Modal Edit-->
-      <transition name="fade">
-        <div v-if="isEditModalOpen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" @click="closeEditModal">
-          <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md" @click.stop>
-            <h2 class="text-xl font-semibold mb-4">Edit Brand</h2>
-            <form @submit.prevent="update">
-              <div class="mb-4">
-                <label for="brand_name" class="block text-sm font-medium text-gray-700">Brand Name</label>
-                <input type="text" id="brand_name" v-model="currentBrand.brand_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-              </div>
-              <div class="mb-4">
-                <label for="brand_code" class="block text-sm font-medium text-gray-700">Brand Code</label>
-                <input type="text" id="brand_code" v-model="currentBrand.brand_code" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></input type="text">
-              </div>
-              <div class="flex justify-end space-x-2">
-                <button type="submit" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save</button>
-                <button type="button" @click="closeEditModal" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </transition>
+  <div class="card mx-4">
+    <!-- Toolbar and DataTable here -->
 
-      <!-- Modal Create -->
-      <transition name="fade">
-        <div v-if="isCreateModalOpen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" @click="closeCreateModal">
-          <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md" @click.stop>
-            <h2 class="text-xl font-semibold mb-4">Create New Brand</h2>
-            <form @submit.prevent="create">
-              <div class="mb-4">
-                <label for="new_brand_name" class="block text-sm font-medium text-gray-700">Brand Name</label>
-                <input type="text" id="new_brand_name" v-model="newBrand.brand_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-              </div>
-              <div class="mb-4">
-                <label for="new_brand_code" class="block text-sm font-medium text-gray-700">Brand Code</label>
-                <input type="text" id="new_brand_code" v-model="newBrand.brand_code" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></input type="text">
-              </div>
-              <div class="flex justify-end space-x-2">
-                <button type="submit" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Create</button>
-                <button type="button" @click="closeCreateModal" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Cancel</button>
-              </div>
-            </form>
-          </div>
+    <Dialog v-model:visible="brandDialog" :style="{ width: '450px' }" header="Brand Details" :modal="true">
+      <div class="flex flex-col gap-6">
+        <div>
+          <label for="brand_name" class="block font-bold mb-3">Brand Name</label>
+          <InputText id="brand_name" v-model.trim="brand.brand_name" required autofocus :invalid="submitted && !brand.brand_name" fluid />
+          <small v-if="submitted && !brand.brand_name" class="text-red-500">Brand Name is required.</small>
         </div>
-      </transition>
-      <DeleteConfirm v-model:modelValue="isDeleteModalOpen" @confirm="deleteItem" />
-    </div>
-  </template>
-  
-  <script setup>
-import { defineProps, ref, onMounted } from 'vue';
-import axios from 'axios';
-import DataTable from '@/Components/DataTable.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { useToast } from 'vue-toastification';
-import DeleteConfirm from '@/Components/DeleteConfirm.vue';
+        <div>
+          <label for="brand_code" class="block font-bold mb-3">Brand Code</label>
+          <InputText id="brand_code" v-model="brand.brand_code" required fluid />
+          <small v-if="submitted && !brand.brand_code" class="text-red-500">Brand Code is required.</small>
+        </div>
+      </div>
+
+      <template #footer>
+        <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
+        <Button label="Save" icon="pi pi-check" @click="save" />
+      </template>
+    </Dialog>
+
+    <!-- Other Dialogs here -->
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
+import { useToast } from 'primevue/usetoast';
+import axios from 'axios';
 
-const customers = ref([
-    {
-        id: 1000,
-        name: 'James Butt',
-        country: {
-            name: 'Algeria',
-            code: 'dz'
-        },
-        company: 'Benton, John B Jr',
-        date: '2015-09-13',
-        status: 'unqualified',
-        verified: true,
-        activity: 17,
-        representative: {
-            name: 'Ioni Bowcher',
-            image: 'ionibowcher.png'
-        },
-        balance: 70663
-    },
-    {
-        id: 1001,
-        name: 'Josephine DarakJnr',
-        country: {
-            name: 'Egypt',
-            code: 'eg'
-        },
-        company: 'Chan, Ross A Esq',
-        date: '2015-09-13',
-        status: 'qualified',
-        verified: true,
-        activity: 17,
-        representative: {
-            name: 'Amy Elsner',
-            image: 'amyelsner.png'
-        },
-        balance: 90663
-    },
-    {
-        id: 1002,
-        name: 'Art Venere',
-        country: {
-            name: 'Algeria',
-            code: 'dz'
-        },
-        company: 'Chemel, James L Cpa',
-        date: '2015-09-13',
-        status: 'new',
-        verified: false,
-        activity: 17,
-        representative: {
-            name: 'Amy Elsner',
-            image: 'amyelsner.png'
-        },
-        balance: 90663
-    },
-    {
-        id: 1003,
-        name: 'Lenna Paprocki',
-        country: {
-            name: 'Ecuador',
-            code: 'ec'
-        },
-        company: 'Feltz Printing Service',
-        date: '2015-09-13',
-        status: 'qualified',
-        verified: true,
-        activity: 17,
-        representative: {
-            name: 'Amy Elsner',
-            image: 'amyelsner.png'
-        },
-        balance: 90663
-    }
-]);
-
-const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    'country.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    representative: { value: null, matchMode: FilterMatchMode.IN },
-    status: { value: null, matchMode: FilterMatchMode.EQUALS },
-    verified: { value: null, matchMode: FilterMatchMode.EQUALS }
-});
-
-const representatives = ref([
-    { name: 'Amy Elsner', image: 'amyelsner.png' },
-    { name: 'Anna Fali', image: 'annafali.png' },
-    { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-    { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-    { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-    { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-    { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-    { name: 'Onyama Limba', image: 'onyamalimba.png' },
-    { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-    { name: 'XuXue Feng', image: 'xuxuefeng.png' }
-]);
-
-const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
-const loading = ref(false); // Set to false as data is hardcoded
-
-const getSeverity = (status) => {
-    switch (status) {
-        case 'unqualified':
-            return 'danger';
-        case 'qualified':
-            return 'success';
-        case 'new':
-            return 'info';
-        case 'negotiation':
-            return 'warn';
-        case 'renewal':
-            return null;
-    }
-}
-
-const isEditModalOpen = ref(false);
-const isCreateModalOpen = ref(false);
-const isDeleteModalOpen = ref(false);
-const currentBrand = ref({ brand_name: '', brand_code: '' });
-const newBrand = ref({ brand_name: '', brand_code: '' });
-const itemToDelete = ref(null);
 const toast = useToast();
+const dt = ref();
 const brands = ref([]);
-const columns = ref([
-  { key: 'brand_name', label: 'Brand Name' },
-  { key: 'brand_code', label: 'Brand Code' }
-]);
+const brandDialog = ref(false);
+const deleteDialog = ref(false);
+const deleteBulkDialog = ref(false);
+const brand = ref({});
+const selectedItems = ref([]);
+const filters = ref({
+  'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+const submitted = ref(false);
+const isEditMode = ref(false);
 
-const deleteConfirmModal = (id) => {
-  itemToDelete.value = id;
-  isDeleteModalOpen.value = true;
-};
+onMounted(() => {
+  fetchData();
+});
 
 const fetchData = async () => {
   try {
@@ -206,69 +59,89 @@ const fetchData = async () => {
   }
 };
 
-onMounted(() => {
-  fetchData();
-});
-
-const editItem = (data) => {
-  currentBrand.value = { ...data };
-  isEditModalOpen.value = true;
+const openNew = () => {
+  brand.value = { brand_name: '', brand_code: '' };
+  submitted.value = false;
+  isEditMode.value = false;
+  brandDialog.value = true;
 };
 
-const closeEditModal = () => (isEditModalOpen.value = false);
-
-const createItem = () => {
-  newBrand.value = { brand_name: '', brand_code: '' };
-  isCreateModalOpen.value = true;
+const edit = (brandData) => {
+  brand.value = { ...brandData };
+  submitted.value = false;
+  isEditMode.value = true;
+  brandDialog.value = true;
 };
 
-const closeCreateModal = () => (isCreateModalOpen.value = false);
+const hideDialog = () => {
+  brandDialog.value = false;
+  submitted.value = false;
+  brand.value = {};
+};
 
-const update = async () => {
-  const url = route('brands.update', currentBrand.value.id);
-  try {
-    const response = await axios.put(url, {
-      brand_name: currentBrand.value.brand_name,
-      brand_code: currentBrand.value.brand_code,
-    });
-
-    await fetchData(); 
-    closeEditModal();
-    toast.success("Update brand successfully");
-  } catch (error) {
-    console.error('Error updating brand:', error.response.data);
+const save = async () => {
+  submitted.value = true;
+  
+  if (brand.value.brand_name.trim() && brand.value.brand_code.trim()) {
+    try {
+      if (isEditMode.value) {
+        await axios.put(route('brands.update', brand.value.id), {
+          brand_name: brand.value.brand_name,
+          brand_code: brand.value.brand_code,
+        });
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Brand updated successfully', life: 3000 });
+      } else {
+        await axios.post(route('brands.store'), {
+          brand_name: brand.value.brand_name,
+          brand_code: brand.value.brand_code,
+        });
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Brand created successfully', life: 3000 });
+      }
+      fetchData();
+      hideDialog();
+    } catch (error) {
+      console.error('Error saving brand:', error.response.data);
+      toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save brand', life: 3000 });
+    }
   }
 };
 
-const create = async () => {
-  try {
-    const response = await axios.post(route('brands.store'), {
-      brand_name: newBrand.value.brand_name,
-      brand_code: newBrand.value.brand_code,
-    });
-    await fetchData()
-    closeCreateModal();
-    toast.success("Brand created successfully");
-  } catch (error) {
-    console.error('Error creating brand:', error.response.data);
-  }
+const confirmDelete = (brandData) => {
+  brand.value = brandData;
+  deleteDialog.value = true;
 };
 
 const deleteItem = async () => {
-  if (itemToDelete.value !== null) {
-    try {
-      await axios.delete(`/brands/${itemToDelete.value}`);
-      await fetchData(); 
-      toast.success("Item deleted successfully");
-    } catch (error) {
-      console.error('Failed to delete item:', error);
-    }
+  try {
+    await axios.delete(route('brands.destroy', brand.value.id));
+    brands.value = brands.value.filter(val => val.id !== brand.value.id);
+    deleteDialog.value = false;
+    toast.add({ severity: 'success', summary: 'Success', detail: 'Brand deleted successfully', life: 3000 });
+  } catch (error) {
+    console.error('Error deleting brand:', error.response.data);
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete brand', life: 3000 });
   }
-  isModalOpen.value = false;
-  itemToDelete.value = null;
+};
+
+const confirmDeleteSelected = () => {
+  deleteBulkDialog.value = true;
+};
+
+const deleteSelectedItems = async () => {
+  try {
+    const ids = selectedItems.value.map(item => item.id);
+    await axios.post(route('brands.bulk-delete'), { ids });
+    brands.value = brands.value.filter(val => !selectedItems.value.includes(val));
+    deleteBulkDialog.value = false;
+    selectedItems.value = [];
+    toast.add({ severity: 'success', summary: 'Success', detail: 'Brands deleted successfully', life: 3000 });
+  } catch (error) {
+    console.error('Error deleting selected brands:', error.response.data);
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete selected brands', life: 3000 });
+  }
+};
+
+const exportCSV = () => {
+  dt.value.exportCSV();
 };
 </script>
-  
-  <style scoped>
-  /* Tambahkan CSS khusus untuk halaman jika diperlukan */
-  </style>
