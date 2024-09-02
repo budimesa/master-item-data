@@ -9,6 +9,7 @@ use App\Http\Controllers\SeriesTypeController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\SizeTolController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ItemDataController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -34,6 +35,7 @@ Route::resource('item-types', ItemTypeController::class);
 Route::resource('series-types', SeriesTypeController::class);
 Route::resource('sizes', SizeController::class);
 Route::resource('size-tols', SizeTolController::class);
+Route::resource('item-datas', ItemDataController::class);
 
 Route::get('/master/general-data', function () {
     return Inertia::render('GeneralData');
