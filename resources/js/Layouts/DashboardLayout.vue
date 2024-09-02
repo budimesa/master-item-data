@@ -24,7 +24,6 @@
   import { ref, inject } from 'vue';
 
 const isDarkMode = inject('isDarkMode', ref(false));
-  console.log(isDarkMode)
   // State untuk mengatur apakah sidebar collapsed atau tidak
   const isSidebarCollapsed = ref(false);
   

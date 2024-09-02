@@ -18,16 +18,20 @@
                 <BrandContent />
               </TabPanel>
               <TabPanel value="1">
+                <ColorContent />
               </TabPanel>
               <TabPanel value="2">
+                <ColorTolContent />
               </TabPanel>
               <TabPanel value="3">
+                <DensityContent />
               </TabPanel>
               <TabPanel value="4">
               </TabPanel>
               <TabPanel value="5">
               </TabPanel>
               <TabPanel value="6">
+                <SizeContent />
               </TabPanel>
               <TabPanel value="7">
               </TabPanel>
@@ -40,13 +44,13 @@
   <script setup>
   import DashboardLayout from '@/Layouts/DashboardLayout.vue';
   import BrandContent from './Contents/BrandContent.vue';
-  // import ColorContent from './Contents/ColorContent.vue';
-  // import ColorTolContent from './Contents/ColorTolContent.vue';
-  // import DensityContent from './Contents/DensityContent.vue';
+  import ColorContent from './Contents/ColorContent.vue';
+  import ColorTolContent from './Contents/ColorTolContent.vue';
   // import ItemTypeContent from './Contents/ItemTypeContent.vue';
-  // import SizeContent from './Contents/SizeContent.vue';
+  import SizeContent from './Contents/SizeContent.vue';
   // import SizeTolContent from './Contents/SizeTolContent.vue';
   // import SeriesTypeContent from './Contents/SeriesTypeContent.vue';
   import { onMounted } from 'vue';
+import DensityContent from './Contents/DensityContent.vue';
   </script>
   

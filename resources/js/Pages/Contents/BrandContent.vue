@@ -11,7 +11,7 @@
       </Toolbar>
       <DataTable ref="dt"
               v-model:selection="selectedItems"
-              :value="brands"
+              :value="items"
               dataKey="id"
               :paginator="true"
               :rows="10"
@@ -48,37 +48,17 @@
       </DataTable>
   </div>
 
-  <!-- <Dialog v-model:visible="brandDialog" :style="{ width: '450px' }" header="Brand Details" :modal="true">
-          <div class="flex flex-col gap-6">
-              <div>
-                  <label for="brand_name" class="block font-bold mb-3">Brand Name</label>
-                  <InputText id="brand_name" v-model.trim="brand.brand_name" required autofocus :invalid="submitted && !brand.brand_name" fluid />
-                  <small v-if="submitted && !brand.brand_name" class="text-red-500">Brand Name is required.</small>
-              </div>
-              <div>
-                  <label for="brand_code" class="block font-bold mb-3">Brand Code</label>
-                  <InputText id="brand_code" v-model="brand.brand_code" required fluid />
-                  <small v-if="submitted && !brand.brand_code" class="text-red-500">Brand Code is required.</small>
-              </div>
-          </div>
-
-          <template #footer>
-              <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
-              <Button label="Save" icon="pi pi-check" @click="save" />
-          </template>   
-      </Dialog> -->
-
-      <Dialog v-model:visible="brandDialog" :style="{ width: '450px' }" header="Brand Details" :modal="true">
+    <Dialog v-model:visible="formDialog" :style="{ width: '450px' }" header="Brand Details" :modal="true">
       <div class="flex flex-col gap-6">
         <div>
           <label for="brand_name" class="block font-bold mb-3">Brand Name</label>
-          <InputText id="brand_name" v-model.trim="brand.brand_name" required autofocus :invalid="submitted && !brand.brand_name" fluid />
-          <small v-if="submitted && !brand.brand_name" class="text-red-500">Brand Name is required.</small>
+          <InputText id="brand_name" v-model.trim="item.brand_name" required autofocus :invalid="submitted && !item.brand_name" fluid />
+          <small v-if="submitted && !item.brand_name" class="text-red-500">Brand Name is required.</small>
         </div>
         <div>
           <label for="brand_code" class="block font-bold mb-3">Brand Code</label>
-          <InputText id="brand_code" v-model="brand.brand_code" required fluid />
-          <small v-if="submitted && !brand.brand_code" class="text-red-500">Brand Code is required.</small>
+          <InputText id="brand_code" v-model="item.brand_code" required fluid />
+          <small v-if="submitted && !item.brand_code" class="text-red-500">Brand Code is required.</small>
         </div>
       </div>
 
@@ -92,7 +72,7 @@
           <div class="flex items-center gap-4">
               <i class="pi pi-exclamation-triangle !text-3xl" />
               <span v-if="brand"
-                  >Are you sure you want to delete <b>{{ brand.name }}</b
+                  >Are you sure you want to delete <b>{{ item.name }}</b
                   >?</span
               >
           </div>
@@ -127,7 +107,7 @@ onMounted(() => {
 const fetchData = async () => {
     try {
         const response = await axios.get(route('brands.index'));
-        brands.value = response.data.brands;
+        items.value = response.data.brands;
     } catch (error) {
         console.error('Error fetching brands:', error);
     }
@@ -136,11 +116,11 @@ const fetchData = async () => {
 
 const toast = useToast();
 const dt = ref();
-const brands = ref([]);
-const brandDialog = ref(false);
+const items = ref([]);
+const formDialog = ref(false);
 const deleteDialog = ref(false);
 const deleteBulkDialog = ref(false);
-const brand = ref({});
+const item = ref({});
 const selectedItems = ref([]);
 const filters = ref({
   'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -149,30 +129,30 @@ const submitted = ref(false);
 const isEditMode = ref(false);
 
 const openNew = () => {
-    brand.value = { brand_name: '', brand_code: '' };
+    item.value = { brand_name: '', brand_code: '' };
     submitted.value = false;
     isEditMode.value = false;
-    brandDialog.value = true;
+    formDialog.value = true;
 };
 const hideDialog = () => {
-  brandDialog.value = false;
+  formDialog.value = false;
   submitted.value = false;
 };
 const save = async () => {
   submitted.value = true;
   
-  if (brand.value.brand_name.trim() && brand.value.brand_code.trim()) {
+  if (item.value.brand_name.trim() && item.value.brand_code.trim()) {
     try {
       if (isEditMode.value) {
-        await axios.put(route('brands.update', brand.value.id), {
-          brand_name: brand.value.brand_name,
-          brand_code: brand.value.brand_code,
+        await axios.put(route('brands.update', item.value.id), {
+          brand_name: item.value.brand_name,
+          brand_code: item.value.brand_code,
         });
         toast.add({ severity: 'success', summary: 'Success', detail: 'Brand updated successfully', life: 3000 });
       } else {
         await axios.post(route('brands.store'), {
-          brand_name: brand.value.brand_name,
-          brand_code: brand.value.brand_code,
+          brand_name: item.value.brand_name,
+          brand_code: item.value.brand_code,
         });
         toast.add({ severity: 'success', summary: 'Success', detail: 'Brand created successfully', life: 3000 });
       }
@@ -185,25 +165,25 @@ const save = async () => {
   }
 };
 const edit = (brandData) => {
-  brand.value = { ...brandData };
+  item.value = { ...brandData };
   submitted.value = false;
   isEditMode.value = true;
-  brandDialog.value = true;
+  formDialog.value = true;
 };
 const confirmDelete = (emp) => {
-  brand.value = emp;
+  item.value = emp;
   deleteDialog.value = true;
 };
 const deleteItem = () => {
-  brands.value = brands.value.filter(val => val.id !== brand.value.id);
+  items.value = items.value.filter(val => val.id !== item.value.id);
   deleteDialog.value = false;
-  brand.value = {};
+  item.value = {};
   toast.add({severity:'success', summary: 'Successful', detail: 'Brand Deleted', life: 3000});
 };
 const findIndexById = (id) => {
   let index = -1;
-  for (let i = 0; i < brands.value.length; i++) {
-      if (brands.value[i].id === id) {
+  for (let i = 0; i < items.value.length; i++) {
+      if (items.value[i].id === id) {
           index = i;
           break;
       }
@@ -218,7 +198,7 @@ const confirmDeleteSelected = () => {
   deleteBulkDialog.value = true;
 };
 const deleteSelectedItems = () => {
-  brands.value = brands.value.filter((val) => !selectedItems.value.includes(val));
+  items.value = items.value.filter((val) => !selectedItems.value.includes(val));
   deleteBulkDialog.value = false;
   selectedItems.value = null;
   toast.add({severity:'success', summary: 'Successful', detail: 'Brands Deleted', life: 3000});

@@ -1,169 +1,227 @@
 <template>
-    <div>
-      <DataTable :items="sizes" :columns="columns" @edit-item="editItem" @delete-item="deleteItem">
-        <template #actions>
-          <PrimaryButton @click="createItem">Add New</PrimaryButton>
-        </template>
+  <div class="card mx-4">
+      <Toolbar class="mb-6">
+          <template #start>
+              <Button label="New" icon="pi pi-plus" severity="success" class="mr-2" @click="openNew" />
+              <!-- <Button label="Delete" icon="pi pi-trash" severity="danger" @click="confirmDeleteSelected" :disabled="!selectedItems || !selectedItems.length" /> -->
+          </template>
+          <template #end>
+              <Button label="Export" icon="pi pi-upload" severity="help" @click="exportCSV($event)" />
+          </template>
+      </Toolbar>
+      <DataTable ref="dt"
+              v-model:selection="selectedItems"
+              :value="items"
+              dataKey="id"
+              :paginator="true"
+              :rows="10"
+              :filters="filters"
+              paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+              :rowsPerPageOptions="[5, 10, 25]"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+          
+              <template #header>
+                  <div class="flex flex-wrap gap-2 items-center justify-between">
+                      <h4 class="m-0">Manage Sizes</h4>
+                      <IconField>
+                          <InputIcon>
+                              <i class="pi pi-search" />
+                          </InputIcon>
+                          <InputText v-model="filters['global'].value" placeholder="Search..." />
+                      </IconField>
+                  </div>
+              </template>
+            <!-- <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column> -->
+            <Column field="id" header="ID" sortable style="min-width: 12rem"></Column>
+            <Column field="fg_length" header="FG Length" sortable style="min-width: 16rem"></Column>
+            <Column field="fg_width" header="FG Width" sortable style="min-width: 12rem"></Column>
+            <Column field="size_name" header="Size Name" sortable style="min-width: 16rem"></Column>
+            <Column field="size_code" header="Size Code" sortable style="min-width: 12rem"></Column>
+            <Column field="created_at" header="Created At" sortable style="min-width: 12rem"></Column>
+            <Column field="created_by" header="Created By" sortable style="min-width: 12rem"></Column>
+            <Column field="updated_at" header="Update At" sortable style="min-width: 12rem"></Column>
+            <Column field="updated_by" header="Update By" sortable style="min-width: 12rem"></Column>
+            <Column :exportable="false" style="min-width: 12rem" header="Actions" alignFrozen="right" frozen>
+            <template #body="slotProps">
+                <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="edit(slotProps.data)" />
+                <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDelete(slotProps.data)" />
+            </template>
+        </Column>
       </DataTable>
-  
-      <!-- Modal Edit-->
-      <transition name="fade">
-        <div v-if="isEditModalOpen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" @click="closeEditModal">
-          <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md" @click.stop>
-            <h2 class="text-xl font-semibold mb-4">Edit Size</h2>
-            <form @submit.prevent="update">
-              <div class="mb-4">
-                <label for="fg_width" class="block text-sm font-medium text-gray-700">FG Width</label>
-                <input type="text" id="fg_width" v-model="currentSize.fg_width" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-              </div>
-              <div class="mb-4">
-                <label for="fg_length" class="block text-sm font-medium text-gray-700">FG Length</label>
-                <input type="text" id="fg_length" v-model="currentSize.fg_length" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-              </div>
-              <div class="mb-4">
-                <label for="size_name" class="block text-sm font-medium text-gray-700">Size Name</label>
-                <input type="text" id="size_name" v-model="currentSize.size_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-              </div>
-              <div class="mb-4">
-                <label for="size_code" class="block text-sm font-medium text-gray-700">Size Code</label>
-                <input type="text" id="size_code" v-model="currentSize.size_code" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></input type="text">
-              </div>
-              <div class="flex justify-end space-x-2">
-                <button type="submit" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save</button>
-                <button type="button" @click="closeEditModal" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </transition>
+  </div>
 
-      <!-- Modal Create -->
-      <transition name="fade">
-        <div v-if="isCreateModalOpen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" @click="closeCreateModal">
-          <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md" @click.stop>
-            <h2 class="text-xl font-semibold mb-4">Create New Size</h2>
-            <form @submit.prevent="create">
-                <div class="mb-4">
-                  <div class="mb-4">
-                  <label for="new_fg_width" class="block text-sm font-medium text-gray-700">FG Width</label>
-                  <input type="text" id="new_fg_width" v-model="newSize.fg_width" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-                </div>
-                <div class="mb-4">
-                  <label for="new_fg_length" class="block text-sm font-medium text-gray-700">FG Length</label>
-                  <input type="text" id="new_fg_length" v-model="newSize.fg_length" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-                </div>
-                <label for="new_size_name" class="block text-sm font-medium text-gray-700">Size Name</label>
-                <input type="text" id="new_size_name" v-model="newSize.size_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-              </div>
-              <div class="mb-4">
-                <label for="new_size_code" class="block text-sm font-medium text-gray-700">Size Code</label>
-                <input type="text" id="new_size_code" v-model="newSize.size_code" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></input type="text">
-              </div>
-              <div class="flex justify-end space-x-2">
-                <button type="submit" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Create</button>
-                <button type="button" @click="closeCreateModal" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Cancel</button>
-              </div>
-            </form>
-          </div>
+    <Dialog v-model:visible="formDialog" :style="{ width: '450px' }" header="Size Details" :modal="true">
+      <div class="flex flex-col gap-6">
+        <div>
+          <label for="fg_length" class="block font-bold mb-3">FG Length</label>
+          <InputText id="fg_length" v-model="item.fg_length" required autofocus :invalid="submitted && !item.fg_length" fluid />
+          <small v-if="submitted && !item.fg_length" class="text-red-500">FG Length is required.</small>
         </div>
-      </transition>
-    </div>
-  </template>
-  
-  <script setup>
-import { defineProps, ref, onMounted } from 'vue';
+        <div>
+          <label for="fg_width" class="block font-bold mb-3">FG Width</label>
+          <InputText id="fg_width" v-model="item.fg_width" required fluid />
+          <small v-if="submitted && !item.fg_width" class="text-red-500">FG Width is required.</small>
+        </div>
+        <div>
+          <label for="size_name" class="block font-bold mb-3">Size Name</label>
+          <InputText id="size_name" v-model.trim="item.size_name" required fluid />
+          <small v-if="submitted && !item.size_name" class="text-red-500">Size Name is required.</small>
+        </div>
+        <div>
+          <label for="size_code" class="block font-bold mb-3">Size Code</label>
+          <InputText id="size_code" v-model="item.size_code" required fluid />
+          <small v-if="submitted && !item.size_code" class="text-red-500">Size Code is required.</small>
+        </div>                
+      </div>
+
+      <template #footer>
+        <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
+        <Button label="Save" icon="pi pi-check" @click="save" />
+      </template>
+    </Dialog>
+
+      <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+          <div class="flex items-center gap-4">
+              <i class="pi pi-exclamation-triangle !text-3xl" />
+              <span v-if="item"
+                  >Are you sure you want to delete <b>{{ item.name }}</b
+                  >?</span
+              >
+          </div>
+          <template #footer>
+              <Button label="No" icon="pi pi-times" text @click="deleteDialog = false" />
+              <Button label="Yes" icon="pi pi-check" @click="deleteItem" />
+          </template>
+      </Dialog>
+
+      <Dialog v-model:visible="deleteBulkDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+          <div class="flex items-center gap-4">
+              <i class="pi pi-exclamation-triangle !text-3xl" />
+              <span v-if="item">Are you sure you want to delete the selected Sizes?</span>
+          </div>
+          <template #footer>
+              <Button label="No" icon="pi pi-times" text @click="deleteBulkDialog = false" />
+              <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedItems" />
+          </template>
+      </Dialog>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import { FilterMatchMode } from '@primevue/core/api';
+import { useToast } from 'primevue/usetoast';
 import axios from 'axios';
-import DataTable from '@/Components/DataTable.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { useToast } from 'vue-toastification';
-
-const isEditModalOpen = ref(false);
-const isCreateModalOpen = ref(false);
-const currentSize = ref({ size_name: '', size_code: '', fg_width: '', fg_length: '' });
-const newSize = ref({ size_name: '', size_code: '', fg_width: '', fg_length: '' });
-const toast = useToast();
-const sizes = ref([]);
-const columns = ref([
-  { key: 'size_name', label: 'Size Name' },
-  { key: 'size_code', label: 'Size Code' },
-  { key: 'fg_width', label: 'FG Width' },
-  { key: 'fg_length', label: 'FG Length' },
-]);
-
-const fetchData = async () => {
-  try {
-    const response = await axios.get(route('sizes.index'));
-    sizes.value = response.data.sizes;
-  } catch (error) {
-    console.error('Error fetching sizes:', error);
-  }
-};
 
 onMounted(() => {
   fetchData();
 });
 
-const editItem = (data) => {
-  currentSize.value = { ...data };
-  isEditModalOpen.value = true;
-};
-
-const closeEditModal = () => (isEditModalOpen.value = false);
-
-const createItem = () => {
-  newSize.value = { size_name: '', size_code: '' };
-  isCreateModalOpen.value = true;
-};
-
-const closeCreateModal = () => (isCreateModalOpen.value = false);
-
-const update = async () => {
-  const url = route('sizes.update', currentSize.value.id);
-  try {
-    const response = await axios.put(url, {
-      size_name: currentSize.value.size_name,
-      size_code: currentSize.value.size_code,
-      fg_width: currentSize.value.fg_width,
-      fg_length: currentSize.value.fg_length,
-    });
-
-    await fetchData(); 
-    closeEditModal();
-    toast.success("Update Size successfully");
-  } catch (error) {
-    console.error('Error updating Size:', error.response.data);
-  }
-};
-
-const create = async () => {
-  try {
-    const response = await axios.post(route('sizes.store'), {
-      size_name: newSize.value.size_name,
-      size_code: newSize.value.size_code,
-      fg_width: newSize.value.fg_width,
-      fg_length: newSize.value.fg_length,
-    });
-    await fetchData()
-    closeCreateModal();
-    toast.success("Size created successfully");
-  } catch (error) {
-    console.error('Error creating Size:', error.response.data);
-  }
-};
-
-const deleteItem = async (id) => {
-  if (confirm('Are you sure you want to delete this item?')) {
+const fetchData = async () => {
     try {
-      await axios.delete(`/sizes/${id}`);
-      await fetchData(); 
-      toast.success("Item deleted successfully");
+        const response = await axios.get(route('sizes.index'));
+        items.value = response.data.sizes;
     } catch (error) {
-      console.error('Failed to delete item:', error);
+        console.error('Error fetching Sizes:', error);
+    }
+};
+
+
+const toast = useToast();
+const dt = ref();
+const items = ref([]);
+const formDialog = ref(false);
+const deleteDialog = ref(false);
+const deleteBulkDialog = ref(false);
+const item = ref({});
+const selectedItems = ref([]);
+const filters = ref({
+  'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+const submitted = ref(false);
+const isEditMode = ref(false);
+
+const openNew = () => {
+    item.value = { size_name: '', size_code: '', fg_length: '',   fg_width: ''};
+    submitted.value = false;
+    isEditMode.value = false;
+    formDialog.value = true;
+};
+const hideDialog = () => {
+  formDialog.value = false;
+  submitted.value = false;
+};
+const save = async () => {
+  submitted.value = true;
+  
+  if (item.value.size_name.trim() && item.value.size_code.trim()) {
+    try {
+      if (isEditMode.value) {
+        await axios.put(route('sizes.update', item.value.id), {
+          fg_length: item.value.fg_length,
+          fg_width: item.value.fg_width,
+          size_name: item.value.size_name,
+          size_code: item.value.size_code,
+        });
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Size updated successfully', life: 3000 });
+      } else {
+        await axios.post(route('sizes.store'), {
+          fg_length: item.value.fg_length,
+          fg_width: item.value.fg_width,
+          size_name: item.value.size_name,
+          size_code: item.value.size_code,
+        });
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Size created successfully', life: 3000 });
+      }
+      fetchData();
+      hideDialog();
+    } catch (error) {
+      console.error('Error saving Size:', error.response.data);
+      toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save Size', life: 3000 });
     }
   }
 };
+const edit = (sizeData) => {
+  item.value = { ...sizeData };
+  submitted.value = false;
+  isEditMode.value = true;
+  formDialog.value = true;
+};
+const confirmDelete = (emp) => {
+  item.value = emp;
+  deleteDialog.value = true;
+};
+const deleteItem = () => {
+  items.value = items.value.filter(val => val.id !== item.value.id);
+  deleteDialog.value = false;
+  item.value = {};
+  toast.add({severity:'success', summary: 'Successful', detail: 'Size Deleted', life: 3000});
+};
+const findIndexById = (id) => {
+  let index = -1;
+  for (let i = 0; i < items.value.length; i++) {
+      if (items.value[i].id === id) {
+          index = i;
+          break;
+      }
+  }
+
+  return index;
+};
+const exportCSV = () => {
+  dt.value.exportCSV();
+};
+const confirmDeleteSelected = () => {
+  deleteBulkDialog.value = true;
+};
+const deleteSelectedItems = () => {
+  items.value = items.value.filter((val) => !selectedItems.value.includes(val));
+  deleteBulkDialog.value = false;
+  selectedItems.value = null;
+  toast.add({severity:'success', summary: 'Successful', detail: 'Sizes Deleted', life: 3000});
+};
 </script>
-  
-  <style scoped>
-  /* Tambahkan CSS khusus untuk halaman jika diperlukan */
-  </style>
+
+<style scoped>
+
+
+</style>

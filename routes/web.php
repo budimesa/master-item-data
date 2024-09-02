@@ -1,6 +1,13 @@
 <?php
 
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\ColorController;
+use App\Http\Controllers\ColorTolController;
+use App\Http\Controllers\DensityController;
+use App\Http\Controllers\ItemTypeController;
+use App\Http\Controllers\SeriesTypeController;
+use App\Http\Controllers\SizeController;
+use App\Http\Controllers\SizeTolController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +27,13 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::resource('brands', BrandController::class);
+Route::resource('colors', ColorController::class);
+Route::resource('color-tols', ColorTolController::class);
+Route::resource('densities', DensityController::class);
+Route::resource('item-types', ItemTypeController::class);
+Route::resource('series-types', SeriesTypeController::class);
+Route::resource('sizes', SizeController::class);
+Route::resource('size-tols', SizeTolController::class);
 
 Route::get('/master/general-data', function () {
     return Inertia::render('GeneralData');
