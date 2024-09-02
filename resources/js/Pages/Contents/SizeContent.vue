@@ -22,7 +22,7 @@
           
               <template #header>
                   <div class="flex flex-wrap gap-2 items-center justify-between">
-                      <h4 class="m-0">Manage Sizes</h4>
+                      <h4 class="m-0">Manage sizes</h4>
                       <IconField>
                           <InputIcon>
                               <i class="pi pi-search" />
@@ -33,7 +33,7 @@
               </template>
             <!-- <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column> -->
             <Column field="id" header="ID" sortable style="min-width: 12rem"></Column>
-            <Column field="fg_length" header="FG Length" sortable style="min-width: 16rem"></Column>
+            <Column field="fg_length" header="FG Length" sortable style="min-width: 12rem"></Column>
             <Column field="fg_width" header="FG Width" sortable style="min-width: 12rem"></Column>
             <Column field="size_name" header="Size Name" sortable style="min-width: 16rem"></Column>
             <Column field="size_code" header="Size Code" sortable style="min-width: 12rem"></Column>
@@ -50,28 +50,44 @@
       </DataTable>
   </div>
 
-    <Dialog v-model:visible="formDialog" :style="{ width: '450px' }" header="Size Details" :modal="true">
+    <Dialog v-model:visible="formDialog" :style="{ width: '450px' }" header="size Details" :modal="true">
       <div class="flex flex-col gap-6">
         <div>
           <label for="fg_length" class="block font-bold mb-3">FG Length</label>
-          <InputText id="fg_length" v-model="item.fg_length" required autofocus :invalid="submitted && !item.fg_length" fluid />
-          <small v-if="submitted && !item.fg_length" class="text-red-500">FG Length is required.</small>
+          <InputText 
+            id="fg_length" 
+            v-model.number="item.fg_length" 
+            type="number" 
+            min="0"
+            autofocus 
+            :invalid="submitted && !Number.isInteger(item.fg_length)"
+            required 
+            fluid 
+          />
+          <small v-if="submitted && !Number.isInteger(item.fg_length)" class="text-red-500">FG Length must be an integer.</small>
         </div>
         <div>
           <label for="fg_width" class="block font-bold mb-3">FG Width</label>
-          <InputText id="fg_width" v-model="item.fg_width" required fluid />
-          <small v-if="submitted && !item.fg_width" class="text-red-500">FG Width is required.</small>
+          <InputText 
+            id="fg_width" 
+            v-model.number="item.fg_width" 
+            type="number" 
+            min="0" 
+            required 
+            fluid 
+          />
+          <small v-if="submitted && !Number.isInteger(item.fg_width)" class="text-red-500">FG Width must be an integer.</small>
         </div>
         <div>
           <label for="size_name" class="block font-bold mb-3">Size Name</label>
           <InputText id="size_name" v-model.trim="item.size_name" required fluid />
-          <small v-if="submitted && !item.size_name" class="text-red-500">Size Name is required.</small>
+          <small v-if="submitted && !item.size_name" class="text-red-500">size Name is required.</small>
         </div>
         <div>
           <label for="size_code" class="block font-bold mb-3">Size Code</label>
           <InputText id="size_code" v-model="item.size_code" required fluid />
-          <small v-if="submitted && !item.size_code" class="text-red-500">Size Code is required.</small>
-        </div>                
+          <small v-if="submitted && !item.size_code" class="text-red-500">size Code is required.</small>
+        </div>
       </div>
 
       <template #footer>
@@ -97,7 +113,7 @@
       <Dialog v-model:visible="deleteBulkDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
           <div class="flex items-center gap-4">
               <i class="pi pi-exclamation-triangle !text-3xl" />
-              <span v-if="item">Are you sure you want to delete the selected Sizes?</span>
+              <span v-if="item">Are you sure you want to delete the selected sizes?</span>
           </div>
           <template #footer>
               <Button label="No" icon="pi pi-times" text @click="deleteBulkDialog = false" />
@@ -121,10 +137,9 @@ const fetchData = async () => {
         const response = await axios.get(route('sizes.index'));
         items.value = response.data.sizes;
     } catch (error) {
-        console.error('Error fetching Sizes:', error);
+        console.error('Error fetching sizes:', error);
     }
 };
-
 
 const toast = useToast();
 const dt = ref();
@@ -141,85 +156,83 @@ const submitted = ref(false);
 const isEditMode = ref(false);
 
 const openNew = () => {
-    item.value = { size_name: '', size_code: '', fg_length: '',   fg_width: ''};
+    item.value = { size_name: '', size_code: '', fg_length: null, fg_width: null };
     submitted.value = false;
     isEditMode.value = false;
     formDialog.value = true;
 };
+
 const hideDialog = () => {
   formDialog.value = false;
   submitted.value = false;
 };
+
 const save = async () => {
   submitted.value = true;
-  
-  if (item.value.size_name.trim() && item.value.size_code.trim()) {
+
+  if (item.value.size_name.trim() && item.value.size_code.trim() && Number.isInteger(item.value.fg_length) && Number.isInteger(item.value.fg_width)) {
     try {
       if (isEditMode.value) {
         await axios.put(route('sizes.update', item.value.id), {
-          fg_length: item.value.fg_length,
-          fg_width: item.value.fg_width,
           size_name: item.value.size_name,
           size_code: item.value.size_code,
+          fg_length: item.value.fg_length,
+          fg_width: item.value.fg_width
         });
         toast.add({ severity: 'success', summary: 'Success', detail: 'Size updated successfully', life: 3000 });
       } else {
         await axios.post(route('sizes.store'), {
-          fg_length: item.value.fg_length,
-          fg_width: item.value.fg_width,
           size_name: item.value.size_name,
           size_code: item.value.size_code,
+          fg_length: item.value.fg_length,
+          fg_width: item.value.fg_width
         });
         toast.add({ severity: 'success', summary: 'Success', detail: 'Size created successfully', life: 3000 });
       }
       fetchData();
       hideDialog();
     } catch (error) {
-      console.error('Error saving Size:', error.response.data);
-      toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save Size', life: 3000 });
+      console.error('Error saving size:', error.response.data);
+      toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save size', life: 3000 });
     }
   }
 };
+
 const edit = (sizeData) => {
   item.value = { ...sizeData };
   submitted.value = false;
   isEditMode.value = true;
   formDialog.value = true;
 };
+
 const confirmDelete = (emp) => {
   item.value = emp;
   deleteDialog.value = true;
 };
-const deleteItem = () => {
-  items.value = items.value.filter(val => val.id !== item.value.id);
-  deleteDialog.value = false;
-  item.value = {};
-  toast.add({severity:'success', summary: 'Successful', detail: 'Size Deleted', life: 3000});
-};
-const findIndexById = (id) => {
-  let index = -1;
-  for (let i = 0; i < items.value.length; i++) {
-      if (items.value[i].id === id) {
-          index = i;
-          break;
-      }
-  }
 
-  return index;
+const deleteItem = async () => {
+  await axios.delete(route('sizes.destroy', item.value.id));
+  deleteDialog.value = false;
+  fetchData();
+  toast.add({ severity: 'success', summary: 'Successful', detail: 'Size Deleted', life: 3000 });
 };
+
 const exportCSV = () => {
   dt.value.exportCSV();
 };
+
 const confirmDeleteSelected = () => {
   deleteBulkDialog.value = true;
 };
+
 const deleteSelectedItems = () => {
   items.value = items.value.filter((val) => !selectedItems.value.includes(val));
   deleteBulkDialog.value = false;
   selectedItems.value = null;
-  toast.add({severity:'success', summary: 'Successful', detail: 'Sizes Deleted', life: 3000});
+  toast.add({ severity: 'success', summary: 'Successful', detail: 'Sizes Deleted', life: 3000 });
 };
 </script>
+
 
 <style scoped>
 

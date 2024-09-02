@@ -174,22 +174,11 @@ const confirmDelete = (emp) => {
   item.value = emp;
   deleteDialog.value = true;
 };
-const deleteItem = () => {
-  items.value = items.value.filter(val => val.id !== item.value.id);
+const deleteItem = async () => {
+  await axios.delete(route('color-tols.destroy', item.value.id));
   deleteDialog.value = false;
-  item.value = {};
+  fetchData();
   toast.add({severity:'success', summary: 'Successful', detail: 'Color Tol Deleted', life: 3000});
-};
-const findIndexById = (id) => {
-  let index = -1;
-  for (let i = 0; i < items.value.length; i++) {
-      if (items.value[i].id === id) {
-          index = i;
-          break;
-      }
-  }
-
-  return index;
 };
 const exportCSV = () => {
   dt.value.exportCSV();

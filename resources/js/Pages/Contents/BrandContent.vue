@@ -71,7 +71,7 @@
       <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
           <div class="flex items-center gap-4">
               <i class="pi pi-exclamation-triangle !text-3xl" />
-              <span v-if="brand"
+              <span v-if="item"
                   >Are you sure you want to delete <b>{{ item.name }}</b
                   >?</span
               >
@@ -85,7 +85,7 @@
       <Dialog v-model:visible="deleteBulkDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
           <div class="flex items-center gap-4">
               <i class="pi pi-exclamation-triangle !text-3xl" />
-              <span v-if="brand">Are you sure you want to delete the selected brands?</span>
+              <span v-if="item">Are you sure you want to delete the selected brands?</span>
           </div>
           <template #footer>
               <Button label="No" icon="pi pi-times" text @click="deleteBulkDialog = false" />
@@ -174,23 +174,13 @@ const confirmDelete = (emp) => {
   item.value = emp;
   deleteDialog.value = true;
 };
-const deleteItem = () => {
-  items.value = items.value.filter(val => val.id !== item.value.id);
+const deleteItem = async () => {
+  await axios.delete(route('brands.destroy', item.value.id));
   deleteDialog.value = false;
-  item.value = {};
+  fetchData();
   toast.add({severity:'success', summary: 'Successful', detail: 'Brand Deleted', life: 3000});
 };
-const findIndexById = (id) => {
-  let index = -1;
-  for (let i = 0; i < items.value.length; i++) {
-      if (items.value[i].id === id) {
-          index = i;
-          break;
-      }
-  }
 
-  return index;
-};
 const exportCSV = () => {
   dt.value.exportCSV();
 };

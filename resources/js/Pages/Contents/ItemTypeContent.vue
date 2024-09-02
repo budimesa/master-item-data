@@ -1,147 +1,201 @@
 <template>
-    <div>
-      <DataTable :items="itemTypes" :columns="columns" @edit-item="editItem" @delete-item="deleteItem">
-        <template #actions>
-          <PrimaryButton @click="createItem">Add New</PrimaryButton>
-        </template>
+  <div class="card mx-4">
+      <Toolbar class="mb-6">
+          <template #start>
+              <Button label="New" icon="pi pi-plus" severity="success" class="mr-2" @click="openNew" />
+              <!-- <Button label="Delete" icon="pi pi-trash" severity="danger" @click="confirmDeleteSelected" :disabled="!selectedItems || !selectedItems.length" /> -->
+          </template>
+          <template #end>
+              <Button label="Export" icon="pi pi-upload" severity="help" @click="exportCSV($event)" />
+          </template>
+      </Toolbar>
+      <DataTable ref="dt"
+              v-model:selection="selectedItems"
+              :value="items"
+              dataKey="id"
+              :paginator="true"
+              :rows="10"
+              :filters="filters"
+              paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+              :rowsPerPageOptions="[5, 10, 25]"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+          
+              <template #header>
+                  <div class="flex flex-wrap gap-2 items-center justify-between">
+                      <h4 class="m-0">Manage Item Types</h4>
+                      <IconField>
+                          <InputIcon>
+                              <i class="pi pi-search" />
+                          </InputIcon>
+                          <InputText v-model="filters['global'].value" placeholder="Search..." />
+                      </IconField>
+                  </div>
+              </template>
+            <!-- <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column> -->
+            <Column field="id" header="ID" sortable style="min-width: 12rem"></Column>
+            <Column field="type_name" header="Item Type Name" sortable style="min-width: 16rem"></Column>
+            <Column field="type_code" header="Item Type Code" sortable style="min-width: 12rem"></Column>
+            <Column field="created_at" header="Created At" sortable style="min-width: 12rem"></Column>
+            <Column field="created_by" header="Created By" sortable style="min-width: 12rem"></Column>
+            <Column field="updated_at" header="Update At" sortable style="min-width: 12rem"></Column>
+            <Column field="updated_by" header="Update By" sortable style="min-width: 12rem"></Column>
+            <Column :exportable="false" style="min-width: 12rem" header="Actions" alignFrozen="right" frozen>
+            <template #body="slotProps">
+                <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="edit(slotProps.data)" />
+                <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDelete(slotProps.data)" />
+            </template>
+        </Column>
       </DataTable>
-  
-      <!-- Modal Edit-->
-      <transition name="fade">
-        <div v-if="isEditModalOpen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" @click="closeEditModal">
-          <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md" @click.stop>
-            <h2 class="text-xl font-semibold mb-4">Edit Item Type</h2>
-            <form @submit.prevent="update">
-              <div class="mb-4">
-                <label for="type_name" class="block text-sm font-medium text-gray-700">Item Type Name</label>
-                <input type="text" id="type_name" v-model="currentItemType.type_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-              </div>
-              <div class="mb-4">
-                <label for="type_code" class="block text-sm font-medium text-gray-700">Item Type Code</label>
-                <input type="text" id="type_code" v-model="currentItemType.type_code" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></input type="text">
-              </div>
-              <div class="flex justify-end space-x-2">
-                <button type="submit" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save</button>
-                <button type="button" @click="closeEditModal" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </transition>
+  </div>
 
-      <!-- Modal Create -->
-      <transition name="fade">
-        <div v-if="isCreateModalOpen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" @click="closeCreateModal">
-          <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md" @click.stop>
-            <h2 class="text-xl font-semibold mb-4">Create New Item Type</h2>
-            <form @submit.prevent="create">
-              <div class="mb-4">
-                <label for="new_type_name" class="block text-sm font-medium text-gray-700">Item Type Name</label>
-                <input type="text" id="new_type_name" v-model="newItemType.type_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-              </div>
-              <div class="mb-4">
-                <label for="new_type_code" class="block text-sm font-medium text-gray-700">Item Type Code</label>
-                <input type="text" id="new_type_code" v-model="newItemType.type_code" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></input type="text">
-              </div>
-              <div class="flex justify-end space-x-2">
-                <button type="submit" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Create</button>
-                <button type="button" @click="closeCreateModal" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Cancel</button>
-              </div>
-            </form>
-          </div>
+    <Dialog v-model:visible="formDialog" :style="{ width: '450px' }" header="Item Type Details" :modal="true">
+      <div class="flex flex-col gap-6">
+        <div>
+          <label for="type_name" class="block font-bold mb-3">Item Type Name</label>
+          <InputText id="type_name" v-model.trim="item.type_name" required autofocus :invalid="submitted && !item.type_name" fluid />
+          <small v-if="submitted && !item.type_name" class="text-red-500">Item Type Name is required.</small>
         </div>
-      </transition>
-    </div>
-  </template>
-  
-  <script setup>
-import { defineProps, ref, onMounted } from 'vue';
+        <div>
+          <label for="type_code" class="block font-bold mb-3">Item Type Code</label>
+          <InputText id="type_code" v-model="item.type_code" required fluid />
+          <small v-if="submitted && !item.type_code" class="text-red-500">Item Type Code is required.</small>
+        </div>
+      </div>
+
+      <template #footer>
+        <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
+        <Button label="Save" icon="pi pi-check" @click="save" />
+      </template>
+    </Dialog>
+
+      <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+          <div class="flex items-center gap-4">
+              <i class="pi pi-exclamation-triangle !text-3xl" />
+              <span v-if="item"
+                  >Are you sure you want to delete <b>{{ item.name }}</b
+                  >?</span
+              >
+          </div>
+          <template #footer>
+              <Button label="No" icon="pi pi-times" text @click="deleteDialog = false" />
+              <Button label="Yes" icon="pi pi-check" @click="deleteItem" />
+          </template>
+      </Dialog>
+
+      <Dialog v-model:visible="deleteBulkDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+          <div class="flex items-center gap-4">
+              <i class="pi pi-exclamation-triangle !text-3xl" />
+              <span v-if="item">Are you sure you want to delete the selected Item Types?</span>
+          </div>
+          <template #footer>
+              <Button label="No" icon="pi pi-times" text @click="deleteBulkDialog = false" />
+              <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedItems" />
+          </template>
+      </Dialog>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import { FilterMatchMode } from '@primevue/core/api';
+import { useToast } from 'primevue/usetoast';
 import axios from 'axios';
-import DataTable from '@/Components/DataTable.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { useToast } from 'vue-toastification';
-
-const isEditModalOpen = ref(false);
-const isCreateModalOpen = ref(false);
-const currentItemType = ref({ type_name: '', type_code: '' });
-const newItemType = ref({ type_name: '', type_code: '' });
-const toast = useToast();
-const itemTypes = ref([]);
-const columns = ref([
-  { key: 'type_name', label: 'Item Type Name' },
-  { key: 'type_code', label: 'Item Type Code' }
-]);
-
-const fetchData = async () => {
-  try {
-    const response = await axios.get(route('item-types.index'));
-    itemTypes.value = response.data.itemTypes;
-  } catch (error) {
-    console.error('Error fetching itemTypes:', error);
-  }
-};
 
 onMounted(() => {
   fetchData();
 });
 
-const editItem = (data) => {
-  currentItemType.value = { ...data };
-  isEditModalOpen.value = true;
-};
-
-const closeEditModal = () => (isEditModalOpen.value = false);
-
-const createItem = () => {
-  newItemType.value = { type_name: '', type_code: '' };
-  isCreateModalOpen.value = true;
-};
-
-const closeCreateModal = () => (isCreateModalOpen.value = false);
-
-const update = async () => {
-  const url = route('item-types.update', currentItemType.value.id);
-  try {
-    const response = await axios.put(url, {
-      type_name: currentItemType.value.type_name,
-      type_code: currentItemType.value.type_code,
-    });
-
-    await fetchData(); 
-    closeEditModal();
-    toast.success("Update Item Type successfully");
-  } catch (error) {
-    console.error('Error updating Item Type:', error.response.data);
-  }
-};
-
-const create = async () => {
-  try {
-    const response = await axios.post(route('item-types.store'), {
-      type_name: newItemType.value.type_name,
-      type_code: newItemType.value.type_code,
-    });
-    await fetchData()
-    closeCreateModal();
-    toast.success("Item Type created successfully");
-  } catch (error) {
-    console.error('Error creating Item Type:', error.response.data);
-  }
-};
-
-const deleteItem = async (id) => {
-  if (confirm('Are you sure you want to delete this item?')) {
+const fetchData = async () => {
     try {
-      await axios.delete(`/itemTypes/${id}`);
-      await fetchData(); 
-      toast.success("Item deleted successfully");
+        const response = await axios.get(route('item-types.index'));
+        items.value = response.data.itemTypes;
     } catch (error) {
-      console.error('Failed to delete item:', error);
+        console.error('Error fetching Item Types:', error);
+    }
+};
+
+
+const toast = useToast();
+const dt = ref();
+const items = ref([]);
+const formDialog = ref(false);
+const deleteDialog = ref(false);
+const deleteBulkDialog = ref(false);
+const item = ref({});
+const selectedItems = ref([]);
+const filters = ref({
+  'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+const submitted = ref(false);
+const isEditMode = ref(false);
+
+const openNew = () => {
+    item.value = { type_name: '', type_code: '' };
+    submitted.value = false;
+    isEditMode.value = false;
+    formDialog.value = true;
+};
+const hideDialog = () => {
+  formDialog.value = false;
+  submitted.value = false;
+};
+const save = async () => {
+  submitted.value = true;
+  
+  if (item.value.type_name.trim() && item.value.type_code.trim()) {
+    try {
+      if (isEditMode.value) {
+        await axios.put(route('item-types.update', item.value.id), {
+          type_name: item.value.type_name,
+          type_code: item.value.type_code,
+        });
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Item Type updated successfully', life: 3000 });
+      } else {
+        await axios.post(route('item-types.store'), {
+          type_name: item.value.type_name,
+          type_code: item.value.type_code,
+        });
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Item Type created successfully', life: 3000 });
+      }
+      fetchData();
+      hideDialog();
+    } catch (error) {
+      console.error('Error saving Item Type:', error.response.data);
+      toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save Item Type', life: 3000 });
     }
   }
 };
+const edit = (itemTypeData) => {
+  item.value = { ...itemTypeData };
+  submitted.value = false;
+  isEditMode.value = true;
+  formDialog.value = true;
+};
+const confirmDelete = (emp) => {
+  item.value = emp;
+  deleteDialog.value = true;
+};
+const deleteItem = async () => {
+  await axios.delete(route('item-types.destroy', item.value.id));
+  deleteDialog.value = false;
+  fetchData();
+  toast.add({severity:'success', summary: 'Successful', detail: 'Item Type Deleted', life: 3000});
+};
+
+const exportCSV = () => {
+  dt.value.exportCSV();
+};
+const confirmDeleteSelected = () => {
+  deleteBulkDialog.value = true;
+};
+const deleteSelectedItems = () => {
+  items.value = items.value.filter((val) => !selectedItems.value.includes(val));
+  deleteBulkDialog.value = false;
+  selectedItems.value = null;
+  toast.add({severity:'success', summary: 'Successful', detail: 'Item Types Deleted', life: 3000});
+};
 </script>
-  
-  <style scoped>
-  /* Tambahkan CSS khusus untuk halaman jika diperlukan */
-  </style>
+
+<style scoped>
+
+
+</style>

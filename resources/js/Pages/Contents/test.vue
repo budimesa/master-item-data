@@ -127,6 +127,7 @@ const confirmDeleteSelected = () => {
   deleteBulkDialog.value = true;
 };
 
+
 const deleteSelectedItems = async () => {
   try {
     const ids = selectedItems.value.map(item => item.id);

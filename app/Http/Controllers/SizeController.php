@@ -31,8 +31,8 @@ class SizeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'fg_width' => 'required|string',
-            'fg_length' => 'required|string',
+            'fg_width' => 'required|integer|min:0',
+            'fg_length' => 'required|integer|min:0',
             'size_name' => 'required|string|max:255',
             'size_code' => 'required|string',
         ]);
@@ -70,8 +70,8 @@ class SizeController extends Controller
     public function update(Request $request, Size $size)
     {
         $request->validate([
-            'fg_width' => 'required|string',
-            'fg_length' => 'required|string',
+            'fg_width' => 'required|integer|min:0',
+            'fg_length' => 'required|integer|min:0',
             'size_name' => 'required|string|max:255',
             'size_code' => 'required|string',
         ]);

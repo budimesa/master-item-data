@@ -27,13 +27,16 @@
                 <DensityContent />
               </TabPanel>
               <TabPanel value="4">
+                <ItemTypeContent />
               </TabPanel>
               <TabPanel value="5">
+                <SeriesTypeContent />
               </TabPanel>
               <TabPanel value="6">
                 <SizeContent />
               </TabPanel>
               <TabPanel value="7">
+                <SizeTolContent />
               </TabPanel>
           </TabPanels>
       </Tabs>
@@ -46,10 +49,10 @@
   import BrandContent from './Contents/BrandContent.vue';
   import ColorContent from './Contents/ColorContent.vue';
   import ColorTolContent from './Contents/ColorTolContent.vue';
-  // import ItemTypeContent from './Contents/ItemTypeContent.vue';
+  import ItemTypeContent from './Contents/ItemTypeContent.vue';
   import SizeContent from './Contents/SizeContent.vue';
-  // import SizeTolContent from './Contents/SizeTolContent.vue';
-  // import SeriesTypeContent from './Contents/SeriesTypeContent.vue';
+  import SizeTolContent from './Contents/SizeTolContent.vue';
+  import SeriesTypeContent from './Contents/SeriesTypeContent.vue';
   import { onMounted } from 'vue';
 import DensityContent from './Contents/DensityContent.vue';
   </script>

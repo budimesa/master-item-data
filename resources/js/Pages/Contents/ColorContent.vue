@@ -113,7 +113,6 @@ const fetchData = async () => {
     }
 };
 
-
 const toast = useToast();
 const dt = ref();
 const items = ref([]);
@@ -174,22 +173,11 @@ const confirmDelete = (emp) => {
   item.value = emp;
   deleteDialog.value = true;
 };
-const deleteItem = () => {
-  items.value = items.value.filter(val => val.id !== item.value.id);
+const deleteItem = async () => {
+  await axios.delete(route('colors.destroy', item.value.id));
   deleteDialog.value = false;
-  item.value = {};
-  toast.add({severity:'success', summary: 'Successful', detail: 'Color Deleted', life: 3000});
-};
-const findIndexById = (id) => {
-  let index = -1;
-  for (let i = 0; i < items.value.length; i++) {
-      if (items.value[i].id === id) {
-          index = i;
-          break;
-      }
-  }
-
-  return index;
+  fetchData();
+  toast.add({severity:'success', summary: 'Successful', detail: 'Brand Deleted', life: 3000});
 };
 const exportCSV = () => {
   dt.value.exportCSV();
