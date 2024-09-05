@@ -19,7 +19,7 @@
 
     <!-- Paginator Component -->
     <Paginator
-      :rows="rows"
+      v-model:rows="rows"
       :totalRecords="totalRecords"
       :first="first"
       :rowsPerPageOptions="[10, 20, 30]"
@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 
 const items = ref([]);
@@ -47,15 +47,13 @@ const pagination = ref({
 
 const fetchData = async (page = 1) => {
   try {
-    console.log('Fetching data for page:', page);
+    // console.log('Fetching data for page:', page);
     const response = await axios.get(route('series-types.index'), {
       params: {
         page: page,
         per_page: pagination.value.per_page
       }
     });
-
-    console.log('Response data:', response.data);
 
     items.value = response.data.data;
     pagination.value = {
@@ -74,9 +72,22 @@ const fetchData = async (page = 1) => {
 };
 
 const handlePageChange = (event) => {
-  console.log('Page changed to:', event.page + 1);
+  // console.log('Page changed to:', event.page + 1);
   fetchData(event.page + 1);
 };
+
+// const handleRowsPerPageChange = (event) => {
+//   console.log('Rows per page changed to:', event.rows);
+//   pagination.value.per_page = event.rows;
+//   fetchData(1); // Fetch data for the first page with the new per_page value
+// };
+
+// Watch for changes in rows
+watch(rows, (newValue) => {
+  console.log('Rows per page changed to:', newValue);
+  pagination.value.per_page = newValue;
+  fetchData(1); // Fetch data for the first page with the new per_page value
+});
 
 onMounted(() => {
   fetchData();
