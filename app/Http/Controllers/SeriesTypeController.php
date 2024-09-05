@@ -11,10 +11,29 @@ class SeriesTypeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    // public function index()
+    // {
+    //     $seriesTypes = SeriesType::all();
+    //     return response()->json(['seriesTypes' => $seriesTypes]);
+    // }
+
+    public function index(Request $request)
     {
-        $seriesTypes = SeriesType::all();
-        return response()->json(['seriesTypes' => $seriesTypes]);
+        $perPage = $request->input('per_page', 10); // Default 10
+        $currentPage = $request->input('page', 1); // Default 1
+
+        // Mendapatkan data dengan pagination
+        $data = SeriesType::paginate($perPage, ['*'], 'page', $currentPage);
+
+        return response()->json([
+            'data' => $data->items(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'last_page' => $data->lastPage(),
+            'from' => $data->firstItem(),
+            'to' => $data->lastItem()
+        ]);
     }
 
     /**

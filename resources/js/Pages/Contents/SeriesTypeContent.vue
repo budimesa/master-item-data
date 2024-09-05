@@ -17,7 +17,7 @@
               :rows="10"
               :filters="filters"
               paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-              :rowsPerPageOptions="[5, 10, 25]"
+              :rowsPerPageOptions="[5, 10, 25, 50, 100]"
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
           
               <template #header>
