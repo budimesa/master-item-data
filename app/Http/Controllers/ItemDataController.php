@@ -8,13 +8,24 @@ use Illuminate\Support\Facades\Auth;
 
 class ItemDataController extends Controller
 {
+
     public function index(Request $request)
     {
-        $perPage = $request->query('perPage', 10); // Number of items per page
-        $page = $request->query('page', 1); // Current page
-        $itemDatas = ItemData::paginate($perPage, ['*'], 'page', $page);
+        $perPage = $request->input('per_page', 10); // Default 10
+        $currentPage = $request->input('page', 1); // Default 1
 
-        return response()->json($itemDatas);
+        // Mendapatkan data dengan pagination
+        $data = ItemData::paginate($perPage, ['*'], 'page', $currentPage);
+
+        return response()->json([
+            'data' => $data->items(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'last_page' => $data->lastPage(),
+            'from' => $data->firstItem(),
+            'to' => $data->lastItem()
+        ]);
     }
 
     public function store(Request $request)
