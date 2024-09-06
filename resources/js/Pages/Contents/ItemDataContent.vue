@@ -4,7 +4,7 @@
     <DataTable :value="items" :rows="rows">
       <Column v-for="col in columns" :key="col.field" :field="col.field" :header="col.header" sortable style="min-width: 12rem"></Column>
             <Column field="id" header="ID" sortable style="min-width: 12rem"></Column>
-            <Column field="qty_safty" header="Qty Safety" sortable style="min-width: 12rem"></Column>
+            <Column field="qty_safety" header="Qty Safety" sortable style="min-width: 12rem"></Column>
             <Column field="safety_m" header="Safety M" sortable style="min-width: 12rem"></Column>
             <Column field="dol_trade" header="DOL Trade" sortable style="min-width: 12rem"></Column>
             <Column field="price_type" header="Price Type" sortable style="min-width: 12rem"></Column>

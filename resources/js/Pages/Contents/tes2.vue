@@ -37,7 +37,7 @@
       <!-- Columns definition -->
             <Column v-for="col in columns" :key="col.field" :field="col.field" :header="col.header" sortable style="min-width: 12rem"></Column>
             <Column field="id" header="ID" sortable style="min-width: 12rem"></Column>
-            <Column field="qty_safty" header="Qty Safety" sortable style="min-width: 12rem"></Column>
+            <Column field="qty_safety" header="Qty Safety" sortable style="min-width: 12rem"></Column>
             <Column field="safety_m" header="Safety M" sortable style="min-width: 12rem"></Column>
             <Column field="dol_trade" header="DOL Trade" sortable style="min-width: 12rem"></Column>
             <Column field="price_type" header="Price Type" sortable style="min-width: 12rem"></Column>
@@ -167,3 +167,18 @@ const exportCSV = (event) => {
 <style scoped>
 /* Add your styles here */
 </style>
+
+
+<!-- safety_m	            decimal(4,2)	true	false	[NULL]	0		[NULL]	
+std_cost	            decimal(18,2)	true	false	[NULL]	0		[NULL]	
+qty_std_l	            decimal(18,2)	true	false	[NULL]	0		[NULL]	
+durability	            decimal(18,0)	true	false	[NULL]	0		[NULL]	
+qty_pack	            decimal(18,2)	true	false	[NULL]	0		[NULL]	
+std_wgt	                decimal(18,2)	true	false	[NULL]	0		[NULL]	
+lead_time	            decimal(4,2)	true	false	[NULL]	0		[NULL]	
+qty_min	                decimal(18,2)	true	false	[NULL]	0		[NULL]	
+plus_minus_percentage	decimal(18,0)	true	false	[NULL]	0		[NULL]	
+standar_plus_minus	    decimal(18,0)	true	false	[NULL]	0		[NULL]	
+kw_1_xx_percentage	    decimal(18,0)	true	false	[NULL]	0		[NULL]	
+qty_safety	            decimal(18,6)	false	false	[NULL]	NULL    [NULL]	
+fixed_lot   	        decimal(18,6)	true	false	[NULL]	0		[NULL] -->

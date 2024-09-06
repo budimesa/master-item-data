@@ -42,6 +42,11 @@
                   <span class="ml-3">Item Data</span>
                 </Link>
               </li>
+              <li>
+                <Link :href="route('raw-material')" class="flex items-center p-2 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <span class="ml-3">Raw Material</span>
+                </Link>
+              </li>
             </ul>
           </transition>
         </li>

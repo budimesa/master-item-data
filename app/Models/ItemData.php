@@ -11,7 +11,7 @@ class ItemData extends Model
 
     protected $table = 'mst_item_data_operating';
     protected $fillable = [
-        'qty_safty',
+        'qty_safety',
         'safety_m',
         'dol_trade',
         'price_type',

@@ -10,6 +10,8 @@ use App\Http\Controllers\SizeController;
 use App\Http\Controllers\SizeTolController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ItemDataController;
+use App\Http\Controllers\RawMaterialController;
+
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -36,6 +38,8 @@ Route::resource('series-types', SeriesTypeController::class);
 Route::resource('sizes', SizeController::class);
 Route::resource('size-tols', SizeTolController::class);
 Route::resource('item-datas', ItemDataController::class);
+Route::resource('raw-materials', RawMaterialController::class);
+
 
 Route::get('/master/general-data', function () {
     return Inertia::render('GeneralData');
@@ -45,6 +49,10 @@ Route::get('/master/general-data', function () {
 Route::get('/master/item-data', function () {
     return Inertia::render('ItemData');
 })->name('item-data');
+
+Route::get('/master/raw-material', function () {
+    return Inertia::render('RawMaterial');
+})->name('raw-material');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

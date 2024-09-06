@@ -6,7 +6,7 @@ use App\Models\ItemData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class ItemDataController extends Controller
+class RawMaterialController extends Controller
 {
 
     public function index(Request $request)

@@ -6,7 +6,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import PrimeVue from "primevue/config";
 import 'primeicons/primeicons.css'
-import Aura from '../css/presets/aura'
+import Aura from '../js/presets/aura'
 import ThemeProvider from '@/Components/ThemeProvider.vue';
 import ToastService from 'primevue/toastservice';
 import Toast from 'primevue/toast';
