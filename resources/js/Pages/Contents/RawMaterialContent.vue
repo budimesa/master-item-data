@@ -155,7 +155,36 @@
       <div class="col-span-4">
         <div class="mb-1 flex items-center">
           <label class="w-32 font-semibold">Seri. Type</label>
-          <InputText v-model.trim="item.series_type" class="flex-1 w-full" />
+          <!-- <InputText v-model.trim="item.series_type" class="flex-1 w-full" /> -->
+          <!-- <Dropdown 
+            v-model="selectedSeriesType" 
+            :options="seriesTypeOptions" 
+            option-label="label" 
+            option-value="value" 
+            class="flex-1 w-full"
+          /> -->
+          <Select 
+            v-model="selectedSeriesType" 
+            :options="seriesTypeOptions" 
+            filter 
+            optionLabel="label" 
+            placeholder="Select a Series Type" 
+            class="flex-1 w-full md:w-56"
+          >
+            <template #value="slotProps">
+              <div v-if="slotProps.value" class="flex items-center">                
+                <div>{{ slotProps.value.label }}</div>
+              </div>
+              <span v-else>
+                {{ slotProps.placeholder }}
+              </span>
+            </template>
+            <template #option="slotProps">
+              <div class="flex items-center">
+                <div>{{ slotProps.option.label }}</div>
+              </div>
+            </template>
+          </Select>
         </div>
       </div>
       <div class="col-span-4">
@@ -296,8 +325,30 @@ const processItemCode = (code) => {
     submitted.value = false;
     isEditMode.value = false;
     formDialog.value = true;
+    fetchSeriesTypes();
  };
+
+  const selectedSeriesType = ref(null);
+  const seriesTypeOptions = ref([]);
+
+  const fetchSeriesTypes = async () => {
+    try {
+      const response = await axios.get(route('series-types.index')); // Sesuaikan URL dengan endpoint Anda
+      seriesTypeOptions.value = response.data.seriesTypes.map(type => ({
+        label: type.series_type_code + ' | ' + type.series_type_name, // Untuk display di dropdown
+        value: type.series_type_code,   // Nilai yang dipilih
+      }));
+    } catch (error) {
+      console.error('Failed to fetch series types:', error);
+    }
+  };
+
+ const hideDialog = () => {
+  formDialog.value = false;
+  submitted.value = false;
+};
   
+
   const fetchData = async (page = 1) => {
     try {
       // console.log('Fetching data for page:', page);
