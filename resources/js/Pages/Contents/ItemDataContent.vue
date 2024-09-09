@@ -36,7 +36,9 @@
             <Column field="size_tol_code" header="Size Tolerance Code" sortable style="min-width: 12rem"></Column>
             <Column field="qty_min" header="Quantity Min" sortable style="min-width: 12rem"></Column>
             <Column field="level_code" header="Level Code" sortable style="min-width: 12rem"></Column>
+            <Column field="created_at" header="Created At" sortable style="min-width: 12rem"></Column>
             <Column field="created_by" header="Created By" sortable style="min-width: 12rem"></Column>
+            <Column field="updated_at" header="Updated At" sortable style="min-width: 12rem"></Column>
             <Column field="updated_by" header="Updated By" sortable style="min-width: 12rem"></Column>
             <Column field="usage_to" header="Usage To" sortable style="min-width: 12rem"></Column>
             <Column field="plus_minus_percentage" header="Plus Minus Percentage" sortable style="min-width: 12rem"></Column>
@@ -56,7 +58,7 @@
       v-model:rows="rows"
       :totalRecords="totalRecords"
       :first="first"
-      :rowsPerPageOptions="[10, 20, 30]"
+      :rowsPerPageOptions="[10, 20, 30, 100]"
       @page="handlePageChange"
     ></Paginator>
   </div>
