@@ -156,13 +156,7 @@
       </div>
       <div class="col-span-4">
         <div class="flex items-center">
-          <label class="w-32 font-semibold">Qty. Pack</label>
-          <InputText v-model.trim="item.qty_pack" class="flex-1 w-full" />
-        </div>
-      </div>
-      <div class="col-span-8">
-        <div class="flex items-center">
-          <label class="w-32 font-semibold">Brand Code</label>
+          <label class="w-32 font-semibold">Brand</label>
           <multiselect
             class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
             v-model="selectedBrand"
@@ -176,40 +170,77 @@
           />
         </div>
       </div>
+      <div class="col-span-8">
+        <div class="flex items-center">
+          <label class="w-32 font-semibold">Density</label>
+          <multiselect
+            class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
+            v-model="selectedDensity"
+            :options="densityOptions"
+            :searchable="true"
+            :closeOnSelect="true"
+            :clearOnSelect="true"
+            placeholder=""
+            label="label"
+            track-by="code"
+          />
+        </div>
+      </div>
+      <div class="col-span-4">
+        <div class="flex items-center">
+          <label class="w-32 font-semibold">Size</label>
+          <multiselect
+            class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
+            v-model="selectedSize"
+            :options="sizeOptions"
+            :searchable="true"
+            :closeOnSelect="true"
+            :clearOnSelect="true"
+            placeholder=""
+            label="label"
+            track-by="code"
+          />
+        </div>
+      </div>
+      <div class="col-span-4">
+        <div class="flex items-center">
+          <label class="w-32 font-semibold">Color</label>
+          <multiselect
+            class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
+            v-model="selectedColor"
+            :options="colorOptions"
+            :searchable="true"
+            :closeOnSelect="true"
+            :clearOnSelect="true"
+            placeholder=""
+            label="label"
+            track-by="code"
+          />
+        </div>
+      </div>
+      <div class="col-span-4">
+        <div class="flex items-center">
+          <label class="w-32 font-semibold">Qty. Pack</label>
+          <InputText v-model.trim="item.qty_pack" class="flex-1 w-full" />
+        </div>
+      </div>
+      
       <div class="col-span-4">
         <div class="flex items-center">
           <label class="w-32 font-semibold">Std. Weight</label>
           <InputText v-model.trim="item.std_wgt" class="flex-1 w-full" />
         </div>
-      </div>
-      <div class="col-span-8">
-        <div class="flex items-center">
-          <label class="w-32 font-semibold">Size Code</label>
-          <InputText v-model.trim="item.size_code" class="flex-1 w-full" />
-        </div>
-      </div>
+      </div>      
       <div class="col-span-4">
         <div class="flex items-center">
           <label class="w-32 font-semibold">Plus/Minus %</label>
           <InputText v-model.trim="item.plus_minus_percentage" class="flex-1 w-full" />
         </div>
       </div>
-      <div class="col-span-8">
-        <div class="flex items-center">
-          <label class="w-32 font-semibold">Color Code</label>
-          <InputText v-model.trim="item.color_code" class="flex-1 w-full" />
-        </div>
-      </div>
       <div class="col-span-4">
         <div class="flex items-center">
           <label class="w-32 font-semibold">Fixed Lot</label>
           <InputText v-model.trim="item.fixed_lot" class="flex-1 w-full" />
-        </div>
-      </div>
-      <div class="col-span-8">
-        <div class="flex items-center">
-          <label class="w-32 font-semibold">Density Code</label>
-          <InputText v-model.trim="item.density_code" class="flex-1 w-full" />
         </div>
       </div>           
     </div>
@@ -250,6 +281,16 @@
   const submitted = ref(false);
   const isEditMode = ref(false);
   const toast = useToast();
+  const selectedSeriesType = ref({label: '', code: ''});
+  const seriesTypeOptions = ref([]);
+  const selectedBrand = ref({label: '', code: ''});
+  const brandOptions = ref([]);
+  const selectedSize = ref({label: '', code: ''});
+  const sizeOptions = ref([]);
+  const selectedColor = ref({label: '', code: ''});
+  const colorOptions = ref([]);
+  const selectedDensity = ref({label: '', code: ''});
+  const densityOptions = ref([]);
 
   const pagination = ref({
     total: 0,
@@ -258,35 +299,6 @@
     from: 1,
     last: 0
   });
-
-  // Fungsi untuk memproses item_code
-  const processItemCode = (code) => {
-    if (!code) return '';
-    
-    // Pisahkan item_code berdasarkan titik ('.')
-    const parts = code.split('.');
-    
-    // Periksa apakah item_code dimulai dengan '0' atau 'RW'
-    if (parts.length > 0 && (parts[0] === '0' || parts[0] === 'RW')) {
-      // Jika format dimulai dengan '0'
-      if (parts[0] === '0') {
-        // Periksa apakah bagian kedua adalah '45'
-        if (parts.length === 3 && parts[1] === '45') {
-          // Jika ya, kembalikan '43'
-          return '43';
-        }
-        // Jika format "0.XX.YYYY" atau "0.XX.ZZZ"
-        if (parts.length === 3) {
-          return parseInt(parts[1], 10); // Ambil nilai XX dan ubah menjadi angka
-        }
-      } 
-      else if (parts[0] === 'RW' && parts.length === 3) {
-          return parts[1]; // Ambil nilai BO dan kembalikan
-        }
-      }
-      // Format tidak dikenali atau tidak sesuai dengan kriteria
-      return '';
-  };
 
   const openNew = () => {
     item.value = { 
@@ -315,17 +327,22 @@
       phanton: 'Y',
       st_cost: 0,
       fixed_lot: 0,
+      vendor_proc: '',
     };
     selectedSeriesType.value = {label: '', code: ''};
+    selectedBrand.value = {label: '', code: ''};
+    selectedSize.value = {label: '', code: ''};
+    selectedColor.value = {label: '', code: ''};
+    selectedDensity.value = {label: '', code: ''};
     submitted.value = false;
     isEditMode.value = false;
     formDialog.value = true;
     fetchSeriesTypes();
     fetchBrands();
+    fetchSizes();
+    fetchColors();
+    fetchDensities();
   };
-
-  const selectedSeriesType = ref({label: '', code: ''});
-  const seriesTypeOptions = ref([]);
   const fetchSeriesTypes = async () => {
       try {
         const response = await axios.get(route('series-types.index'));
@@ -338,8 +355,6 @@
       }
   };
 
-  const selectedBrand = ref({label: '', code: ''});
-  const brandOptions = ref([]);
   const fetchBrands = async () => {
       try {
         const response = await axios.get(route('brands.index'));
@@ -347,14 +362,10 @@
           label: (brand.brand_code.trimEnd() + ' | ' + brand.brand_name), // Untuk display di dropdown
           code: brand.brand_code.trimEnd(), // Nilai yang dipilih
         }));
-        console.log(brandOptions.value)
       } catch (error) {
         console.error('Failed to fetch brands:', error);
       }
   };
-
-  const selectedSize = ref({label: '', code: ''});
-  const sizeOptions = ref([]);
 
   const fetchSizes = async () => {
       try {
@@ -368,44 +379,34 @@
       }
   };
 
-  const selectedColor = ref({label: '', code: ''});
-const colorOptions = ref([]);
-
-const fetchColors = async () => {
-    try {
-        const response = await axios.get(route('colors.index'));
-        colorOptions.value = response.data.colors.map(color => ({
-            label: (color.color_code.trimEnd() + ' | ' + color.color_name), // Untuk display di dropdown
-            code: color.color_code.trimEnd(), // Nilai yang dipilih
-        }));
-    } catch (error) {
-        console.error('Failed to fetch colors:', error);
-    }
-};
-
-const selectedDensity = ref({label: '', code: ''});
-const densityOptions = ref([]);
-
-const fetchDensities = async () => {
-    try {
-        const response = await axios.get(route('densities.index'));
-        densityOptions.value = response.data.densities.map(density => ({
-            label: (density.density_code.trimEnd() + ' | ' + density.density_name), // Untuk display di dropdown
-            code: density.density_code.trimEnd(), // Nilai yang dipilih
-        }));
-    } catch (error) {
-        console.error('Failed to fetch densities:', error);
-    }
-};
-
-
+  const fetchColors = async () => {
+      try {
+          const response = await axios.get(route('colors.index'));
+          colorOptions.value = response.data.colors.map(color => ({
+              label: (color.color_code.trimEnd() + ' | ' + color.color_name), // Untuk display di dropdown
+              code: color.color_code.trimEnd(), // Nilai yang dipilih
+          }));
+      } catch (error) {
+          console.error('Failed to fetch colors:', error);
+      }
+  };
+  const fetchDensities = async () => {
+      try {
+          const response = await axios.get(route('densities.index'));
+          densityOptions.value = response.data.densities.map(density => ({
+              label: (density.density_code.trimEnd() + ' | ' + density.density_name), // Untuk display di dropdown
+              code: density.density_code.trimEnd(), // Nilai yang dipilih
+          }));
+      } catch (error) {
+          console.error('Failed to fetch densities:', error);
+      }
+  };
 
  const hideDialog = () => {
-  formDialog.value = false;
-  submitted.value = false;
-};
+    formDialog.value = false;
+    submitted.value = false;
+  };
   
-
   const fetchData = async (page = 1) => {
     try {
       const response = await axios.get(route('wfgs.index'), {
@@ -445,23 +446,19 @@ const fetchDensities = async () => {
     fetchData();
   });
   const save = async () => {
-    submitted.value = true;
-    const processedItemCode = processItemCode(item.value.item_code);
-    
+    submitted.value = true;    
     if (item.value.item_code.trim() && item.value.item_spec.trim()) {
       try {
         if (isEditMode.value) {
           await axios.put(route('wfgs.update', item.value.id), {
             ...item.value, // Mengambil semua nilai dari item.value
             series_type: selectedSeriesType.value.code.toString(),
-            vend_proc: processedItemCode.toString()
           });
           toast.add({ severity: 'success', summary: 'Success', detail: 'WFG updated successfully', life: 3000 });
         } else {
           await axios.post(route('wfgs.store'), {
             ...item.value, // Mengambil semua nilai dari item.value
-            series_type: selectedSeriesType.value.code.toString(),
-            vend_proc: processedItemCode.toString() 
+            series_type: selectedSeriesType.value.code.toString(), 
           });
           toast.add({ severity: 'success', summary: 'Success', detail: 'WFG created successfully', life: 3000 });
         }
@@ -475,7 +472,7 @@ const fetchDensities = async () => {
   };
 
   const edit = async (WFGData) => {
-    await fetchSeriesTypes(); // Tunggu hingga data selesai di-fetch
+    await fetchSeriesTypes();
     item.value = { ...WFGData };
     // Check if series_type is empty or not
     if (item.value.series_type === '' || item.value.series_type === null) {
@@ -487,6 +484,43 @@ const fetchDensities = async () => {
       }
     }
 
+    await fetchBrands();
+    if (item.value.brand === '' || item.value.brand === null) {
+      selectedBrand.value = { label: '', code: '' };
+    } else {
+      const selectedOption = brandOptions.value.find(option => option.code.trim() === item.value.brand_code.trim());
+      if (selectedOption) {
+        selectedBrand.value = selectedOption;
+      }
+    }
+
+    await fetchSizes();
+    if (item.value.size === '' || item.value.size === null) {
+      selectedSize.value = { label: '', code: '' };
+    } else {
+      const selectedOption = sizeOptions.value.find(option => option.code.trim() === item.value.size_code.trim());
+      if (selectedOption) {
+        selectedSize.value = selectedOption;
+      }
+    }
+    await fetchColors();
+    if (item.value.color === '' || item.value.color === null) {
+      selectedColor.value = { label: '', code: '' };
+    } else {
+      const selectedOption = colorOptions.value.find(option => option.code.trim() === item.value.color_code.trim());
+      if (selectedOption) {
+        selectedColor.value = selectedOption;
+      }
+    }
+    await fetchDensities();
+    if (item.value.density === '' || item.value.density === null) {
+      selectedDensity.value = { label: '', code: '' };
+    } else {
+      const selectedOption = densityOptions.value.find(option => option.code.trim() === item.value.density_code.trim());
+      if (selectedOption) {
+        selectedDensity.value = selectedOption;
+      }
+    }
     submitted.value = false;
     isEditMode.value = true;
     formDialog.value = true;
