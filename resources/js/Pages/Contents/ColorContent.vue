@@ -177,7 +177,7 @@ const deleteItem = async () => {
   await axios.delete(route('colors.destroy', item.value.id));
   deleteDialog.value = false;
   fetchData();
-  toast.add({severity:'success', summary: 'Successful', detail: 'Brand Deleted', life: 3000});
+  toast.add({severity:'success', summary: 'Successful', detail: 'Color Deleted', life: 3000});
 };
 const exportCSV = () => {
   dt.value.exportCSV();

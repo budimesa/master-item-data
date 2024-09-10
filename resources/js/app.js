@@ -6,11 +6,11 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import PrimeVue from "primevue/config";
 import 'primeicons/primeicons.css'
+import 'vue-multiselect/dist/vue-multiselect.css'
 import Aura from '../js/presets/aura'
 import ThemeProvider from '@/Components/ThemeProvider.vue';
 import ToastService from 'primevue/toastservice';
 import Toast from 'primevue/toast';
-
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 

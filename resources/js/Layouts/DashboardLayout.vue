@@ -8,6 +8,7 @@
       <Sidebar :is-collapsed="isSidebarCollapsed" />
 
       <!-- Main Content Area -->
+      <Toast />
       <main :class="['flex-1 p-4 overflow-y-auto']">
         <slot />
       </main>
