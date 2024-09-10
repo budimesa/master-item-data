@@ -47,6 +47,11 @@
                   <span class="ml-3">Raw Material</span>
                 </Link>
               </li>
+              <li>
+                <Link :href="route('wfg')" class="flex items-center p-2 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <span class="ml-3">WFG</span>
+                </Link>
+              </li>
             </ul>
           </transition>
         </li>

@@ -11,6 +11,7 @@ use App\Http\Controllers\SizeTolController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ItemDataController;
 use App\Http\Controllers\RawMaterialController;
+use App\Http\Controllers\WFGController;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,7 @@ Route::resource('sizes', SizeController::class);
 Route::resource('size-tols', SizeTolController::class);
 Route::resource('item-datas', ItemDataController::class);
 Route::resource('raw-materials', RawMaterialController::class);
+Route::resource('wfgs', WFGController::class);
 
 
 Route::get('/master/general-data', function () {
@@ -53,6 +55,10 @@ Route::get('/master/item-data', function () {
 Route::get('/master/raw-material', function () {
     return Inertia::render('RawMaterial');
 })->name('raw-material');
+
+Route::get('/master/wfg', function () {
+    return Inertia::render('WFG');
+})->name('wfg');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
