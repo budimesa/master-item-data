@@ -51,15 +51,15 @@
     <Dialog v-model:visible="formDialog" :style="{ width: '450px' }" header="Item Type Details" :modal="true">
       <div class="flex flex-col gap-6">
         <div>
-          <label for="type_name" class="block font-bold mb-3">Item Type Name</label>
-          <InputText id="type_name" v-model.trim="item.type_name" required autofocus :invalid="submitted && !item.type_name" fluid />
-          <small v-if="submitted && !item.type_name" class="text-red-500">Item Type Name is required.</small>
-        </div>
-        <div>
           <label for="type_code" class="block font-bold mb-3">Item Type Code</label>
-          <InputText id="type_code" v-model="item.type_code" required fluid />
+          <InputText id="type_code" v-model="item.type_code" required autofocus :invalid="submitted && !item.type_code" fluid />
           <small v-if="submitted && !item.type_code" class="text-red-500">Item Type Code is required.</small>
         </div>
+        <div>
+          <label for="type_name" class="block font-bold mb-3">Item Type Name</label>
+          <InputText id="type_name" v-model.trim="item.type_name" required fluid />
+          <small v-if="submitted && !item.type_name" class="text-red-500">Item Type Name is required.</small>
+        </div>        
       </div>
 
       <template #footer>

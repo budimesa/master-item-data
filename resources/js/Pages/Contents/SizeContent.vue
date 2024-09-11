@@ -79,15 +79,15 @@
           <small v-if="submitted && !Number.isInteger(item.fg_width)" class="text-red-500">FG Width must be an integer.</small>
         </div>
         <div>
-          <label for="size_name" class="block font-bold mb-3">Size Name</label>
-          <InputText id="size_name" v-model.trim="item.size_name" required fluid />
-          <small v-if="submitted && !item.size_name" class="text-red-500">size Name is required.</small>
-        </div>
-        <div>
           <label for="size_code" class="block font-bold mb-3">Size Code</label>
           <InputText id="size_code" v-model="item.size_code" required fluid />
           <small v-if="submitted && !item.size_code" class="text-red-500">size Code is required.</small>
         </div>
+        <div>
+          <label for="size_name" class="block font-bold mb-3">Size Name</label>
+          <InputText id="size_name" v-model.trim="item.size_name" required fluid />
+          <small v-if="submitted && !item.size_name" class="text-red-500">size Name is required.</small>
+        </div>        
       </div>
 
       <template #footer>

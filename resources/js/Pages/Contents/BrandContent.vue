@@ -52,14 +52,14 @@
     <Dialog v-model:visible="formDialog" :style="{ width: '450px' }" header="Brand Details" :modal="true">
       <div class="flex flex-col gap-6">
         <div>
-          <label for="brand_name" class="block font-bold mb-3">Brand Name</label>
-          <InputText id="brand_name" v-model.trim="item.brand_name" required autofocus :invalid="submitted && !item.brand_name" fluid />
-          <small v-if="submitted && !item.brand_name" class="text-red-500">Brand Name is required.</small>
+          <label for="brand_code" class="block font-bold mb-3">Brand Code</label>
+          <InputText id="brand_code" v-model="item.brand_code" required autofocus :invalid="submitted && !item.brand_code" fluid />
+          <small v-if="submitted && !item.brand_code" class="text-red-500">Brand Code is required.</small>
         </div>
         <div>
-          <label for="brand_code" class="block font-bold mb-3">Brand Code</label>
-          <InputText id="brand_code" v-model="item.brand_code" required fluid />
-          <small v-if="submitted && !item.brand_code" class="text-red-500">Brand Code is required.</small>
+          <label for="brand_name" class="block font-bold mb-3">Brand Name</label>
+          <InputText id="brand_name" v-model.trim="item.brand_name" required fluid />
+          <small v-if="submitted && !item.brand_name" class="text-red-500">Brand Name is required.</small>
         </div>
       </div>
 

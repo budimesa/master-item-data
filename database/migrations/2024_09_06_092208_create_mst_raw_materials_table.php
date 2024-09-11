@@ -16,33 +16,24 @@ return new class extends Migration
             $table->decimal('qty_safety', 18, 6)->default(0);
             $table->decimal('safety_m', 4, 2)->default(0);
             $table->string('dol_trade')->nullable();
-            $table->string('price_type')->nullable();
             $table->decimal('std_cost', 18, 2)->default(0);
-            $table->decimal('qty_std_l', 18, 2)->default(0);
             $table->decimal('durability', 18, 0)->default(0);
-            $table->decimal('qty_pack', 18, 2)->default(0);
-            $table->decimal('std_wgt', 18, 2)->default(0);
-            $table->string('size_code')->nullable();
             $table->string('unit_po')->nullable();
+            $table->string('product_type')->nullable();
             $table->string('vend_proc')->nullable();
             $table->string('unit_stk')->nullable();
             $table->string('item_name')->nullable();
             $table->string('item_code')->unique();
-            $table->string('item_type')->nullable();
             $table->string('item_spec')->nullable();
-            $table->string('brand_code')->nullable();
             $table->string('unit_pr')->nullable();
+            $table->string('item_order_code')->nullable();
             $table->decimal('lead_time', 4, 2)->default(0);
-            $table->string('clr_tol_code')->nullable();
             $table->string('unit_prod')->nullable();
-            $table->string('item_grade')->nullable();
             $table->string('series_type')->nullable();
             $table->string('unit_sales')->nullable();
             $table->string('phanton')->default('Y');
             $table->string('unit_usg')->nullable();
-            $table->string('color_code')->nullable();
-            $table->string('density_code')->nullable();
-            $table->string('size_tol_code')->nullable();
+            $table->string('business_type')->nullable();
             $table->decimal('qty_min', 18, 2)->default(0);
             $table->string('level_code')->default('N');
             $table->string('created_by');
@@ -52,8 +43,7 @@ return new class extends Migration
             $table->string('usage_to')->nullable();
             $table->decimal('plus_minus_percentage', 18, 0)->default(0);
             $table->decimal('standar_plus_minus', 18, 0)->default(0);
-            $table->decimal('kw_1_xx_percentage', 18, 0)->default(0);
-            $table->decimal('fixed_lot', 18, 6)->default(0);
+            $table->decimal('fixed_lot', 18, 6)->nullable();
         });
     }
 

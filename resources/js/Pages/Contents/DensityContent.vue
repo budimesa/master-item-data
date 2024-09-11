@@ -51,15 +51,15 @@
     <Dialog v-model:visible="formDialog" :style="{ width: '450px' }" header="Density Details" :modal="true">
       <div class="flex flex-col gap-6">
         <div>
-          <label for="density_name" class="block font-bold mb-3">Density Name</label>
-          <InputText id="density_name" v-model.trim="item.density_name" required autofocus :invalid="submitted && !item.density_name" fluid />
-          <small v-if="submitted && !item.density_name" class="text-red-500">Density Name is required.</small>
-        </div>
-        <div>
           <label for="density_code" class="block font-bold mb-3">Density Code</label>
-          <InputText id="density_code" v-model="item.density_code" required fluid />
+          <InputText id="density_code" v-model="item.density_code" required autofocus :invalid="submitted && !item.density_code" fluid />
           <small v-if="submitted && !item.density_code" class="text-red-500">Density Code is required.</small>
         </div>
+        <div>
+          <label for="density_name" class="block font-bold mb-3">Density Name</label>
+          <InputText id="density_name" v-model.trim="item.density_name" required fluid />
+          <small v-if="submitted && !item.density_name" class="text-red-500">Density Name is required.</small>
+        </div>        
       </div>
 
       <template #footer>

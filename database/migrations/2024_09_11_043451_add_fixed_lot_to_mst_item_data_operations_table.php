@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('mst_raw_materials', function (Blueprint $table) {
-            $table->dropColumn([
-                'price_type'
-            ]);
+        Schema::table('mst_item_data_operations', function (Blueprint $table) {
+            $table->decimal('fixed_lot', 18, 6)->nullable();
         });
     }
 
@@ -23,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('mst_raw_materials', function (Blueprint $table) {
-            $table->string('price_type')->nullable();
+        Schema::table('mst_item_data_operations', function (Blueprint $table) {
+            $table->dropColumn('fixed_lot');
         });
     }
 };

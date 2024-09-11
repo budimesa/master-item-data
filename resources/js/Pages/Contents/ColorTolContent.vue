@@ -51,15 +51,15 @@
     <Dialog v-model:visible="formDialog" :style="{ width: '450px' }" header="Color Tol Details" :modal="true">
       <div class="flex flex-col gap-6">
         <div>
-          <label for="color_tol_name" class="block font-bold mb-3">Color Tol Name</label>
-          <InputText id="color_tol_name" v-model.trim="item.color_tol_name" required autofocus :invalid="submitted && !item.color_tol_name" fluid />
-          <small v-if="submitted && !item.color_tol_name" class="text-red-500">Color Tol Name is required.</small>
-        </div>
-        <div>
           <label for="color_tol_code" class="block font-bold mb-3">Color Tol Code</label>
-          <InputText id="color_tol_code" v-model="item.color_tol_code" required fluid />
+          <InputText id="color_tol_code" v-model="item.color_tol_code" required autofocus :invalid="submitted && !item.color_tol_code" fluid />
           <small v-if="submitted && !item.color_tol_code" class="text-red-500">Color Tol Code is required.</small>
         </div>
+        <div>
+          <label for="color_tol_name" class="block font-bold mb-3">Color Tol Name</label>
+          <InputText id="color_tol_name" v-model.trim="item.color_tol_name" required fluid />
+          <small v-if="submitted && !item.color_tol_name" class="text-red-500">Color Tol Name is required.</small>
+        </div>        
       </div>
 
       <template #footer>

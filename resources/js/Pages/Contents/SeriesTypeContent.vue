@@ -51,15 +51,15 @@
     <Dialog v-model:visible="formDialog" :style="{ width: '450px' }" header="Series Type Details" :modal="true">
       <div class="flex flex-col gap-6">
         <div>
-          <label for="series_type_name" class="block font-bold mb-3">Series Type Name</label>
-          <InputText id="series_type_name" v-model.trim="item.series_type_name" required autofocus :invalid="submitted && !item.series_type_name" fluid />
-          <small v-if="submitted && !item.series_type_name" class="text-red-500">Series Type Name is required.</small>
-        </div>
-        <div>
           <label for="series_type_code" class="block font-bold mb-3">Series Type Code</label>
-          <InputText id="series_type_code" v-model="item.series_type_code" required fluid />
+          <InputText id="series_type_code" v-model="item.series_type_code" required autofocus :invalid="submitted && !item.series_type_code" fluid />
           <small v-if="submitted && !item.series_type_code" class="text-red-500">Series Type Code is required.</small>
         </div>
+        <div>
+          <label for="series_type_name" class="block font-bold mb-3">Series Type Name</label>
+          <InputText id="series_type_name" v-model.trim="item.series_type_name" required fluid />
+          <small v-if="submitted && !item.series_type_name" class="text-red-500">Series Type Name is required.</small>
+        </div>        
       </div>
 
       <template #footer>
