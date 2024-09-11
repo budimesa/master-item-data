@@ -9,9 +9,9 @@ use App\Http\Controllers\SeriesTypeController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\SizeTolController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ItemDataController;
 use App\Http\Controllers\RawMaterialController;
 use App\Http\Controllers\WFGController;
+use App\Http\Controllers\SFGController;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -38,19 +38,14 @@ Route::resource('item-types', ItemTypeController::class);
 Route::resource('series-types', SeriesTypeController::class);
 Route::resource('sizes', SizeController::class);
 Route::resource('size-tols', SizeTolController::class);
-Route::resource('item-datas', ItemDataController::class);
 Route::resource('raw-materials', RawMaterialController::class);
 Route::resource('wfgs', WFGController::class);
+Route::resource('sfgs', SFGController::class);
 
 
 Route::get('/master/general-data', function () {
     return Inertia::render('GeneralData');
 })->name('general-data');
-
-// Rute untuk halaman "Item Data"
-Route::get('/master/item-data', function () {
-    return Inertia::render('ItemData');
-})->name('item-data');
 
 Route::get('/master/raw-material', function () {
     return Inertia::render('RawMaterial');
@@ -59,6 +54,10 @@ Route::get('/master/raw-material', function () {
 Route::get('/master/wfg', function () {
     return Inertia::render('WFG');
 })->name('wfg');
+
+Route::get('/master/sfg', function () {
+    return Inertia::render('SFG');
+})->name('sfg');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

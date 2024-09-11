@@ -38,11 +38,6 @@
                 </Link>
               </li>
               <li>
-                <Link :href="route('item-data')" class="flex items-center p-2 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <span class="ml-3">Item Data</span>
-                </Link>
-              </li>
-              <li>
                 <Link :href="route('raw-material')" class="flex items-center p-2 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-700">
                   <span class="ml-3">Raw Material</span>
                 </Link>
@@ -50,6 +45,11 @@
               <li>
                 <Link :href="route('wfg')" class="flex items-center p-2 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-700">
                   <span class="ml-3">WFG</span>
+                </Link>
+              </li>
+              <li>
+                <Link :href="route('sfg')" class="flex items-center p-2 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <span class="ml-3">SFG</span>
                 </Link>
               </li>
             </ul>

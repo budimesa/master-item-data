@@ -57,7 +57,7 @@
       ></Paginator>
     </div>
 
-    <Dialog v-model:visible="formDialog" modal header="WFG Details" :modal="true" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <Dialog v-model:visible="formDialog" modal header="SFG Details" :modal="true" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <div class="grid grid-cols-12 gap-4 mt-1">
       <!-- Row 1 -->
       <div class="col-span-4">
@@ -303,7 +303,6 @@
   const openNew = () => {
     item.value = { 
       qty_pack: 0,
-      std_cost: 0,
       std_wgt: 0,
       size_code: '',
       unit_po: 'KG',
@@ -320,11 +319,12 @@
       unit_sales: 'KG',
       phanton: 'Y',
       unit_usg: 'KG',
-      business_type: '',
       color_code: '',
       density_code: '',
+      business_type: '',
       level_code: 'N',
       plus_minus_percentage: 0,
+      kw_1_xx_percentage: 0,
       fixed_lot: 0,
     };
     selectedSeriesType.value = {label: '', code: ''};
@@ -407,7 +407,7 @@
   
   const fetchData = async (page = 1) => {
     try {
-      const response = await axios.get(route('wfgs.index'), {
+      const response = await axios.get(route('sfgs.index'), {
         params: {
           page: page,
           per_page: pagination.value.per_page
@@ -448,7 +448,7 @@
     if (item.value.item_code.trim() && item.value.item_spec.trim()) {
       try {
         if (isEditMode.value) {
-          await axios.put(route('wfgs.update', item.value.id), {
+          await axios.put(route('sfgs.update', item.value.id), {
             ...item.value, // Mengambil semua nilai dari item.value
             series_type: selectedSeriesType.value.code.toString(),
             brand_code: selectedBrand.value.code.toString(),
@@ -456,9 +456,9 @@
             color_code: selectedColor.value.code.toString(),
             density_code: selectedDensity.value.code.toString(),
           });
-          toast.add({ severity: 'success', summary: 'Success', detail: 'WFG updated successfully', life: 3000 });
+          toast.add({ severity: 'success', summary: 'Success', detail: 'SFG updated successfully', life: 3000 });
         } else {
-          await axios.post(route('wfgs.store'), {
+          await axios.post(route('sfgs.store'), {
             ...item.value, // Mengambil semua nilai dari item.value
             series_type: selectedSeriesType.value.code.toString(), 
             brand_code: selectedBrand.value.code.toString(),
@@ -467,21 +467,21 @@
             density_code: selectedDensity.value.code.toString(),
           });
           console.log(selectedSize.value.code.toString())
-          toast.add({ severity: 'success', summary: 'Success', detail: 'WFG created successfully', life: 3000 });
+          toast.add({ severity: 'success', summary: 'Success', detail: 'SFG created successfully', life: 3000 });
         }
         fetchData();
         hideDialog();
       } catch (error) {
 
-        console.error('Error saving WFG:', error.response.data);
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save WFG', life: 3000 });
+        console.error('Error saving SFG:', error.response.data);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save SFG', life: 3000 });
       }
     }
   };
 
-  const edit = async (WFGData) => {
+  const edit = async (SFGData) => {
     await fetchSeriesTypes();
-    item.value = { ...WFGData };
+    item.value = { ...SFGData };
     // Check if series_type is empty or not
     if (item.value.series_type === '' || item.value.series_type === null) {
       selectedSeriesType.value = { label: '', code: '' };
@@ -539,10 +539,10 @@
     deleteDialog.value = true;
   };
   const deleteItem = async () => {
-    await axios.delete(route('wfgs.destroy', item.value.id));
+    await axios.delete(route('sfgs.destroy', item.value.id));
     deleteDialog.value = false;
     fetchData();
-    toast.add({severity:'success', summary: 'Successful', detail: 'WFG Deleted', life: 3000});
+    toast.add({severity:'success', summary: 'Successful', detail: 'SFG Deleted', life: 3000});
   };
   </script>
   
