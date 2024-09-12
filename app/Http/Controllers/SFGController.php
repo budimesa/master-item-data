@@ -61,9 +61,7 @@ class SFGController extends Controller
             'color_code' => 'string',
             'density_code' => 'string',
             'level_code' => 'string',            
-            'plus_minus_percentage' => 'numeric',
-            'fixed_lot' => 'numeric',
-            
+            'plus_minus_percentage' => 'numeric',            
         ]);
 
         $data['created_by'] = Auth::id(); // Ambil ID pengguna yang sedang login
@@ -102,7 +100,6 @@ class SFGController extends Controller
             'density_code' => 'string',
             'level_code' => 'string',            
             'plus_minus_percentage' => 'numeric',
-            'fixed_lot' => 'numeric',
         ]);
 
         $data['updated_by'] = Auth::id(); // Ambil ID pengguna yang sedang login

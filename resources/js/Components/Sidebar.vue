@@ -52,6 +52,11 @@
                   <span class="ml-3">SFG</span>
                 </Link>
               </li>
+              <li>
+                <Link :href="route('fg')" class="flex items-center p-2 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <span class="ml-3">FG</span>
+                </Link>
+              </li>
             </ul>
           </transition>
         </li>
