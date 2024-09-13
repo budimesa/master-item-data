@@ -59,6 +59,26 @@
     <Dialog v-model:visible="formDialog" modal header="SFG Details" :modal="true" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <div class="grid grid-cols-12 gap-4 mt-1">
       <!-- Row 1 -->
+      <div class="col-span-12">
+          <div class="flex items-center">
+            <label class="w-32 font-semibold">Inventory Type</label>
+            <div class="flex-1">
+              <!-- <InputText v-model.trim="item.inventory_type" class="w-full" required autofocus :invalid="submitted && !item.inventory_type" fluid/> -->
+              <multiselect
+                class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
+                v-model="selectedInventoryType"
+                :options="inventoryTypeOptions"
+                :searchable="true"
+                :closeOnSelect="true"
+                :clearOnSelect="true"
+                placeholder=""
+                label="label"
+                track-by="id"
+              />
+            </div>
+          </div>
+          <small v-if="submitted && !item.inventory_type" class="text-red-500 block mt-1 ml-32">Item Code is required.</small>
+      </div>
       <div class="col-span-4">
           <div class="flex items-center">
             <label class="w-32 font-semibold">Item Code</label>
@@ -274,6 +294,8 @@
   const submitted = ref(false);
   const isEditMode = ref(false);
   const toast = useToast();
+  const selectedInventoryType = ref({label: '', code: ''});
+  const inventoryTypeOptions = ref([]);
   const selectedSeriesType = ref({label: '', code: ''});
   const seriesTypeOptions = ref([]);
   const selectedBrand = ref({label: '', code: ''});
@@ -328,12 +350,25 @@
     submitted.value = false;
     isEditMode.value = false;
     formDialog.value = true;
+    fetchInventoryTypes()
     fetchSeriesTypes(inventoryTypeId);
     fetchBrands();
     fetchSizes();
     fetchColors();
     fetchDensities();
   };
+
+  const fetchInventoryTypes = async () => {
+    try {
+      const response = await axios.get(route('inventory-types.index'));
+      inventoryTypeOptions.value = response.data.inventoryTypes.map(inventoryType => ({
+        label: (inventoryType.inventory_type_name.trimEnd()), // Untuk display di dropdown
+        id: inventoryType.id
+      }));
+    } catch (error) {
+      console.error('Failed to fetch inventory types:', error);
+    }
+}
   const fetchSeriesTypes = async () => {
       try {
         const response = await axios.get(route('series-types-by-inventory-type'), {
@@ -475,7 +510,18 @@
     }
   };
 
+
   const edit = async (SFGData) => {
+    await fetchInventoryTypes();
+    if (item.value.inventory_type_id === '' || item.value.inventory_type_id === null) {
+      selectedInventoryType.value = { label: '', id: '' };
+    } else {
+      const selectedOption = inventoryTypeOptions.value.find(option => option.id === item.value.inventory_type_id);
+      if (selectedOption) {
+        selectedInventoryType.value = selectedOption;
+      }
+    }
+
     await fetchSeriesTypes(inventoryTypeId);
     item.value = { ...SFGData };
     // Check if series_type is empty or not

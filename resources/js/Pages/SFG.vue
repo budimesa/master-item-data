@@ -10,6 +10,7 @@
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import SFGContent from './Contents/SFGContent.vue';
 
+
   const validateAndProcessInput = async () => {
     submitted.value = true;
     const code = item.value.item_code;
