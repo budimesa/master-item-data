@@ -128,7 +128,6 @@ const fetchData = async () => {
     }
 };
 
-
 const toast = useToast();
 const dt = ref();
 const items = ref([]);
@@ -156,9 +155,6 @@ const fetchInventoryTypes = async () => {
       console.error('Failed to fetch inventory types:', error);
     }
 }
-
-
-
 const openNew = () => {
     item.value = { series_type_name: '', series_type_code: '' };
     submitted.value = false;

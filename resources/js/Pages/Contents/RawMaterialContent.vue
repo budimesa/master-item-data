@@ -250,7 +250,7 @@
   const submitted = ref(false);
   const isEditMode = ref(false);
   const toast = useToast();
-
+  const inventoryTypeId = 8 // id inventory type raw material
   const pagination = ref({
     total: 0,
     per_page: 10,
@@ -320,22 +320,26 @@
     submitted.value = false;
     isEditMode.value = false;
     formDialog.value = true;
-    fetchSeriesTypes();
+    fetchSeriesTypes(inventoryTypeId);
   };
 
   const selectedSeriesType = ref({label: '', code: ''});
   const seriesTypeOptions = ref([]);
-  const fetchSeriesTypes = async () => {
-      try {
-        const response = await axios.get(route('series-types.index')); // Sesuaikan URL dengan endpoint Anda
+  const fetchSeriesTypes = async (inventoryTypeId) => {
+    try {
+        const response = await axios.get(route('series-types-by-inventory-type'), {
+            params: {
+                inventory_type_id: inventoryTypeId
+            }
+        });
         seriesTypeOptions.value = response.data.seriesTypes.map(type => ({
           label: (type.series_type_code.trimEnd() + ' | ' + type.series_type_name), // Untuk display di dropdown
           code: type.series_type_code.trimEnd(), // Nilai yang dipilih
         }));
-      } catch (error) {
+    } catch (error) {
         console.error('Failed to fetch series types:', error);
-      }
-  };
+    }
+}
 
  const hideDialog = () => {
   formDialog.value = false;
@@ -412,7 +416,7 @@
   };
 
   const edit = async (rawMaterialData) => {
-    await fetchSeriesTypes(); // Tunggu hingga data selesai di-fetch
+    await fetchSeriesTypes(inventoryTypeId); // Tunggu hingga data selesai di-fetch
     item.value = { ...rawMaterialData };
     // Check if series_type is empty or not
     if (item.value.series_type === '' || item.value.series_type === null) {

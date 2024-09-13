@@ -284,6 +284,7 @@
   const colorOptions = ref([]);
   const selectedDensity = ref({label: '', code: ''});
   const densityOptions = ref([]);
+  const inventoryTypeId = 1 // id inventory type keramik
 
   const pagination = ref({
     total: 0,
@@ -327,7 +328,7 @@
     submitted.value = false;
     isEditMode.value = false;
     formDialog.value = true;
-    fetchSeriesTypes();
+    fetchSeriesTypes(inventoryTypeId);
     fetchBrands();
     fetchSizes();
     fetchColors();
@@ -335,7 +336,11 @@
   };
   const fetchSeriesTypes = async () => {
       try {
-        const response = await axios.get(route('series-types.index'));
+        const response = await axios.get(route('series-types-by-inventory-type'), {
+            params: {
+                inventory_type_id: inventoryTypeId
+            }
+        });
         seriesTypeOptions.value = response.data.seriesTypes.map(type => ({
           label: (type.series_type_code.trimEnd() + ' | ' + type.series_type_name), // Untuk display di dropdown
           code: type.series_type_code.trimEnd(), // Nilai yang dipilih
@@ -471,7 +476,7 @@
   };
 
   const edit = async (SFGData) => {
-    await fetchSeriesTypes();
+    await fetchSeriesTypes(inventoryTypeId);
     item.value = { ...SFGData };
     // Check if series_type is empty or not
     if (item.value.series_type === '' || item.value.series_type === null) {

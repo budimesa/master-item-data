@@ -66,7 +66,7 @@
           <div class="flex items-center">
             <label class="w-32 font-semibold">Item Code</label>
             <div class="flex-1">
-              <InputText v-model.trim="item.item_code" class="w-full" required autofocus :invalid="submitted && !item.item_code" @blur="validateAndProcessInput" fluid/>
+              <InputText v-model.trim="item.item_code" class="w-full" required @blur="validateAndProcessInput" fluid/>
             </div>
           </div>
           <small v-if="submitted && !item.item_code" class="text-red-500 block mt-1 ml-32">Item Code is required.</small>
@@ -341,6 +341,7 @@
   const colorTolOptions = ref([]);
   const selectedSizeTol = ref({label: '', code: ''});
   const sizeTolOptions = ref([]);
+  const inventoryTypeId = 1 // id inventory type keramik
 
   const pagination = ref({
     total: 0,
@@ -390,7 +391,7 @@
     submitted.value = false;
     isEditMode.value = false;
     formDialog.value = true;
-    fetchSeriesTypes();
+    fetchSeriesTypes(inventoryTypeId);
     fetchBrands();
     fetchSizes();
     fetchColors();
@@ -399,8 +400,12 @@
     fetchSizeTols();
   };
   const fetchSeriesTypes = async () => {
-      try {
-        const response = await axios.get(route('series-types.index'));
+     try {
+        const response = await axios.get(route('series-types-by-inventory-type'), {
+            params: {
+                inventory_type_id: inventoryTypeId
+            }
+        });
         seriesTypeOptions.value = response.data.seriesTypes.map(type => ({
           label: (type.series_type_code.trimEnd() + ' | ' + type.series_type_name), // Untuk display di dropdown
           code: type.series_type_code.trimEnd(), // Nilai yang dipilih
@@ -566,7 +571,7 @@
   };
 
   const edit = async (FGData) => {
-    await fetchSeriesTypes();
+    await fetchSeriesTypes(inventoryTypeId);
     item.value = { ...FGData };
     item.value.item_grade_name = getItemGradeName(item.value.item_code);
     // Check if series_type is empty or not
