@@ -17,6 +17,12 @@ class SeriesTypeController extends Controller
         return response()->json(['seriesTypes' => $seriesTypes]);
     }
 
+    public function getSeriesTypesByInventoryType(Request $request)
+    {
+        $seriesTypes = SeriesType::where('inventory_type_id', $request->inventory_type_id)->get();
+        return response()->json(['seriesTypes' => $seriesTypes]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -33,9 +39,10 @@ class SeriesTypeController extends Controller
         $request->validate([
             'series_type_name' => 'required|string|max:255',
             'series_type_code' => 'required|string',
+            'inventory_type_id' => 'required|integer',
         ]);
 
-        $data = $request->only('series_type_name', 'series_type_code');
+        $data = $request->only('series_type_name', 'series_type_code', 'inventory_type_id');
         $data['created_by'] = Auth::id(); // Ambil ID pengguna yang sedang login
     
         SeriesType::create($data);
@@ -70,9 +77,10 @@ class SeriesTypeController extends Controller
         $request->validate([
             'series_type_name' => 'required|string|max:255',
             'series_type_code' => 'required|string',
+            'inventory_type_id' => 'required|integer',
         ]);
 
-        $data = $request->only('series_type_name', 'series_type_code');
+        $data = $request->only('series_type_name', 'series_type_code', 'inventory_type_id');
         $data['updated_by'] = Auth::id(); // Ambil ID pengguna yang sedang login
     
         $seriesType->update($data);

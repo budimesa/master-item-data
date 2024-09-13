@@ -12,6 +12,7 @@
             <Tab value="5">Series Type</Tab>
             <Tab value="6">Size</Tab>
             <Tab value="7">Size Tol</Tab>
+            <Tab value="8">Inventory Type</Tab>
         </TabList>
         <TabPanels>
             <TabPanel value="0">
@@ -38,6 +39,9 @@
             <TabPanel value="7">
               <SizeTolContent />
             </TabPanel>
+            <TabPanel value="8">
+              <InventoryTypeContent />
+            </TabPanel>
         </TabPanels>
     </Tabs>
     </div>
@@ -53,6 +57,7 @@ import ItemTypeContent from './Contents/ItemTypeContent.vue';
 import SizeContent from './Contents/SizeContent.vue';
 import SizeTolContent from './Contents/SizeTolContent.vue';
 import SeriesTypeContent from './Contents/SeriesTypeContent.vue';
+import InventoryTypeContent from './Contents/InventoryTypeContent.vue';
 import { onMounted } from 'vue';
 import DensityContent from './Contents/DensityContent.vue';
 </script>

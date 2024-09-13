@@ -17,12 +17,12 @@
               :rows="10"
               :filters="filters"
               paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-              :rowsPerPageOptions="[5, 10, 25, 50, 100]"
+              :rowsPerPageOptions="[5, 10, 25]"
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
           
               <template #header>
                   <div class="flex flex-wrap gap-2 items-center justify-between">
-                      <h4 class="m-0">Manage Series Types</h4>
+                      <h4 class="m-0">Manage Inventory Types</h4>
                       <IconField>
                           <InputIcon>
                               <i class="pi pi-search" />
@@ -33,8 +33,8 @@
               </template>
             <!-- <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column> -->
             <Column field="id" header="ID" sortable style="min-width: 12rem"></Column>
-            <Column field="series_type_name" header="Series Type Name" sortable style="min-width: 16rem"></Column>
-            <Column field="series_type_code" header="Series Type Code" sortable style="min-width: 12rem"></Column>
+            <Column field="inventory_type_name" header="Name" sortable style="min-width: 16rem"></Column>
+            <Column field="group" header="Group" sortable style="min-width: 12rem"></Column>
             <Column field="created_at" header="Created At" sortable style="min-width: 12rem"></Column>
             <Column field="created_by" header="Created By" sortable style="min-width: 12rem"></Column>
             <Column field="updated_at" header="Update At" sortable style="min-width: 12rem"></Column>
@@ -48,31 +48,17 @@
       </DataTable>
   </div>
 
-    <Dialog v-model:visible="formDialog" :style="{ width: '450px' }" header="Series Type Details" :modal="true">
+    <Dialog v-model:visible="formDialog" :style="{ width: '450px' }" header="Inventory Type Details" :modal="true">
       <div class="flex flex-col gap-6">
         <div>
-          <label for="series_type_code" class="block font-bold mb-3">Inventory Type</label>
-          <multiselect
-            class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
-            v-model="selectedInventoryType"
-            :options="inventoryTypeOptions"
-            :searchable="true"
-            :closeOnSelect="true"
-            :clearOnSelect="true"
-            placeholder=""
-            label="label"
-            track-by="id"
-          />
+          <label for="group" class="block font-bold mb-3">Group</label>
+          <InputText id="group" v-model="item.group" required autofocus :invalid="submitted && !item.group" fluid />
+          <small v-if="submitted && !item.group" class="text-red-500">Group is required.</small>
         </div>
         <div>
-          <label for="series_type_code" class="block font-bold mb-3">Series Type Code</label>
-          <InputText id="series_type_code" v-model="item.series_type_code" required fluid />
-          <small v-if="submitted && !item.series_type_code" class="text-red-500">Series Type Code is required.</small>
-        </div>
-        <div>
-          <label for="series_type_name" class="block font-bold mb-3">Series Type Name</label>
-          <InputText id="series_type_name" v-model.trim="item.series_type_name" required fluid />
-          <small v-if="submitted && !item.series_type_name" class="text-red-500">Series Type Name is required.</small>
+          <label for="inventory_type_name" class="block font-bold mb-3">Inventory Type Name</label>
+          <InputText id="inventory_type_name" v-model.trim="item.inventory_type_name" required fluid />
+          <small v-if="submitted && !item.inventory_type_name" class="text-red-500">Inventory Type Name is required.</small>
         </div>        
       </div>
 
@@ -99,7 +85,7 @@
       <Dialog v-model:visible="deleteBulkDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
           <div class="flex items-center gap-4">
               <i class="pi pi-exclamation-triangle !text-3xl" />
-              <span v-if="item">Are you sure you want to delete the selected Series Types?</span>
+              <span v-if="item">Are you sure you want to delete the selected inventory types?</span>
           </div>
           <template #footer>
               <Button label="No" icon="pi pi-times" text @click="deleteBulkDialog = false" />
@@ -112,7 +98,6 @@
 import { ref, onMounted } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import Multiselect from 'vue-multiselect'
 import axios from 'axios';
 
 onMounted(() => {
@@ -121,13 +106,12 @@ onMounted(() => {
 
 const fetchData = async () => {
     try {
-        const response = await axios.get(route('series-types.index'));
-        items.value = response.data.seriesTypes;
+        const response = await axios.get(route('inventory-types.index'));
+        items.value = response.data.inventoryTypes;
     } catch (error) {
-        console.error('Error fetching Series Types:', error);
+        console.error('Error fetching inventory types:', error);
     }
 };
-
 
 const toast = useToast();
 const dt = ref();
@@ -137,34 +121,17 @@ const deleteDialog = ref(false);
 const deleteBulkDialog = ref(false);
 const item = ref({});
 const selectedItems = ref([]);
-const selectedInventoryType = ref({label: '', code: ''});
-const inventoryTypeOptions = ref([]);
 const filters = ref({
   'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 const submitted = ref(false);
 const isEditMode = ref(false);
 
-const fetchInventoryTypes = async () => {
-    try {
-      const response = await axios.get(route('inventory-types.index'));
-      inventoryTypeOptions.value = response.data.inventoryTypes.map(inventoryType => ({
-        label: (inventoryType.inventory_type_name.trimEnd()), // Untuk display di dropdown
-        id: inventoryType.id
-      }));
-    } catch (error) {
-      console.error('Failed to fetch inventory types:', error);
-    }
-}
-
-
-
 const openNew = () => {
-    item.value = { series_type_name: '', series_type_code: '' };
+    item.value = { inventory_type_name: '', group: '' };
     submitted.value = false;
     isEditMode.value = false;
     formDialog.value = true;
-    fetchInventoryTypes();
 };
 const hideDialog = () => {
   formDialog.value = false;
@@ -173,57 +140,45 @@ const hideDialog = () => {
 const save = async () => {
   submitted.value = true;
   
-  if (item.value.series_type_name.trim() && item.value.series_type_code.trim()) {
+  if (item.value.inventory_type_name.trim() && item.value.group.trim()) {
     try {
       if (isEditMode.value) {
-        await axios.put(route('series-types.update', item.value.id), {
-          series_type_name: item.value.series_type_name,
-          series_type_code: item.value.series_type_code,
-          inventory_type_id: selectedInventoryType.value.id,
+        await axios.put(route('inventory-types.update', item.value.id), {
+          inventory_type_name: item.value.inventory_type_name,
+          group: item.value.group,
         });
-        toast.add({ severity: 'success', summary: 'Success', detail: 'Series Type updated successfully', life: 3000 });
+        toast.add({ severity: 'success', summary: 'Success', detail: 'inventory types updated successfully', life: 3000 });
       } else {
-        await axios.post(route('series-types.store'), {
-          series_type_name: item.value.series_type_name,
-          series_type_code: item.value.series_type_code,
-          inventory_type_id: selectedInventoryType.value.id,          
+        await axios.post(route('inventory-types.store'), {
+          inventory_type_name: item.value.inventory_type_name,
+          group: item.value.group,
         });
-        toast.add({ severity: 'success', summary: 'Success', detail: 'Series Type created successfully', life: 3000 });
+        toast.add({ severity: 'success', summary: 'Success', detail: 'inventory types created successfully', life: 3000 });
       }
       fetchData();
       hideDialog();
     } catch (error) {
-      console.error('Error saving Series Type:', error.response.data);
-      toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save Series Type', life: 3000 });
+      console.error('Error saving inventory types:', error.response.data);
+      toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save inventory types', life: 3000 });
     }
   }
 };
-const edit = async (seriesTypeData) => {
-  item.value = { ...seriesTypeData };
+const edit = (inventoryTypeData) => {
+  item.value = { ...inventoryTypeData };
   submitted.value = false;
   isEditMode.value = true;
   formDialog.value = true;
-  await fetchInventoryTypes();
-  if (item.value.inventory_type_id === '' || item.value.inventory_type_id === null) {
-    selectedInventoryType.value = { label: '', id: '' };
-  } else {
-    const selectedOption = inventoryTypeOptions.value.find(option => option.id === item.value.inventory_type_id);
-    if (selectedOption) {
-      selectedInventoryType.value = selectedOption;
-    }
-  }
 };
 const confirmDelete = (emp) => {
   item.value = emp;
   deleteDialog.value = true;
 };
 const deleteItem = async () => {
-  await axios.delete(route('series-types.destroy', item.value.id));
+  await axios.delete(route('inventory-types.destroy', item.value.id));
   deleteDialog.value = false;
   fetchData();
-  toast.add({severity:'success', summary: 'Successful', detail: 'Series Type Deleted', life: 3000});
+  toast.add({severity:'success', summary: 'Successful', detail: 'inventory types Deleted', life: 3000});
 };
-
 const exportCSV = () => {
   dt.value.exportCSV();
 };
@@ -234,7 +189,7 @@ const deleteSelectedItems = () => {
   items.value = items.value.filter((val) => !selectedItems.value.includes(val));
   deleteBulkDialog.value = false;
   selectedItems.value = null;
-  toast.add({severity:'success', summary: 'Successful', detail: 'Series Types Deleted', life: 3000});
+  toast.add({severity:'success', summary: 'Successful', detail: 'inventory types Deleted', life: 3000});
 };
 </script>
 

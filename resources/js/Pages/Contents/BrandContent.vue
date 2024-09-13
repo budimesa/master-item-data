@@ -9,16 +9,7 @@
               <Button label="Export" icon="pi pi-upload" severity="help" @click="exportCSV($event)" />
           </template>
       </Toolbar>
-      <DataTable ref="dt"
-              v-model:selection="selectedItems"
-              :value="items"
-              dataKey="id"
-              :paginator="true"
-              :rows="10"
-              :filters="filters"
-              paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-              :rowsPerPageOptions="[5, 10, 25]"
-              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      <DataTable v-model:filters="filters" :value="items" paginator :rows="10" dataKey="id" filterDisplay="row"
               :reorderableColumns="true">
           
               <template #header>
@@ -34,8 +25,25 @@
               </template>
             <!-- <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column> -->
             <Column field="id" header="ID" sortable style="min-width: 12rem"></Column>
-            <Column field="brand_name" header="Brand Name" sortable style="min-width: 16rem"></Column>
-            <Column field="brand_code" header="Brand Code" sortable style="min-width: 12rem"></Column>
+            <!-- <Column field="brand_name" header="Brand Name" sortable style="min-width: 16rem"></Column> -->
+            <Column field="brand_name" header="Brand Name" style="min-width: 12rem">
+              <template #body="{ data }">
+                  {{ data.brand_name }}
+              </template>
+              <template #filter="{ filterModel, filterCallback }">
+                  <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Search by name" />
+              </template>
+          </Column>
+            <!-- <Column field="brand_code" header="Brand Code" sortable style="min-width: 12rem"></Column> -->
+            <Column field="brand_code" header="Brand Code" style="min-width: 12rem">
+                <template #body="{ data }">
+                    {{ data.brand_code }}
+                </template>
+                <template #filter="{ filterModel, filterCallback }">
+                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Search by code" />
+                </template>
+            </Column>
+
             <Column field="created_at" header="Created At" sortable style="min-width: 12rem"></Column>
             <Column field="created_by" header="Created By" sortable style="min-width: 12rem"></Column>
             <Column field="updated_at" header="Update At" sortable style="min-width: 12rem"></Column>
@@ -113,8 +121,6 @@ const fetchData = async () => {
         console.error('Error fetching brands:', error);
     }
 };
-
-
 const toast = useToast();
 const dt = ref();
 const items = ref([]);
@@ -124,7 +130,9 @@ const deleteBulkDialog = ref(false);
 const item = ref({});
 const selectedItems = ref([]);
 const filters = ref({
-  'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  brand_name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  brand_code: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
 });
 const submitted = ref(false);
 const isEditMode = ref(false);

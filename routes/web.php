@@ -13,6 +13,7 @@ use App\Http\Controllers\RawMaterialController;
 use App\Http\Controllers\WFGController;
 use App\Http\Controllers\SFGController;
 use App\Http\Controllers\FGController;
+use App\Http\Controllers\InventoryTypeController;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -37,12 +38,14 @@ Route::resource('color-tols', ColorTolController::class);
 Route::resource('densities', DensityController::class);
 Route::resource('item-types', ItemTypeController::class);
 Route::resource('series-types', SeriesTypeController::class);
+Route::get('/series-types-by-inventory-type', [SeriesTypeController::class, 'getSeriesTypesByInventoryType'])->name('series-types-by-inventory-type');
 Route::resource('sizes', SizeController::class);
 Route::resource('size-tols', SizeTolController::class);
 Route::resource('raw-materials', RawMaterialController::class);
 Route::resource('wfgs', WFGController::class);
 Route::resource('sfgs', SFGController::class);
 Route::resource('fgs', FGController::class);
+Route::resource('inventory-types', InventoryTypeController::class);
 
 
 Route::get('/master/general-data', function () {
@@ -64,6 +67,10 @@ Route::get('/master/sfg', function () {
 Route::get('/master/fg', function () {
     return Inertia::render('FG');
 })->name('fg');
+
+Route::get('/master/inventory-type', function () {
+    return Inertia::render('InventoryType');
+})->name('inventory-type');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -13,6 +13,7 @@ class SeriesType extends Model
     protected $fillable = [
         'series_type_name',
         'series_type_code',
+        'inventory_type_id',
         'created_by',
         'updated_by',
         'created_at',
