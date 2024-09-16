@@ -5,8 +5,6 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import PrimeVue from 'primevue/config';
-import '../js/src/assets/styles.scss'; // Gaya kustom dari template Sakai
-import '../js/src/assets/tailwind.css'; // Gaya Tailwind CSS (jika digunakan)
 import 'primeicons/primeicons.css'; // Ikon PrimeVue
 import 'vue-multiselect/dist/vue-multiselect.css'; // Gaya Multiselect Vue
 import Aura from '../js/presets/aura'; // Konfigurasi Aura (jika digunakan)
