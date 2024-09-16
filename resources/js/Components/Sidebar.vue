@@ -3,7 +3,6 @@
   <div class="h-full px-2 py-6">
     <nav>
       <ul class="space-y-2">
-        <!-- Dashboard Menu -->
         <li>
           <router-link to="/dashboard" class="flex items-center p-2 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-700">
             <i class="pi pi-home"></i>
@@ -12,8 +11,6 @@
             </transition>
           </router-link>
         </li>
-
-        <!-- Master Menu with Dropdown -->
         <li>
           <div @click="toggleMasterMenu" class="flex items-center justify-between p-2 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
             <div class="flex items-center">
@@ -28,8 +25,6 @@
               </svg>
             </transition>
           </div>
-
-          <!-- Dropdown Items -->
           <transition name="slide fade">
             <ul v-if="isMasterMenuOpen && !isCollapsed" class="ml-10 space-y-2">
               <li>

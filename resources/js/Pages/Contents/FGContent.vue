@@ -563,7 +563,6 @@
         fetchData();
         hideDialog();
       } catch (error) {        
-        console.log(error)
         console.error('Error saving FG:', error.response.data);
         toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save FG', life: 3000 });
       }

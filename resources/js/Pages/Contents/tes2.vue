@@ -8,39 +8,41 @@
         <template #end>
             <Button label="Export" icon="pi pi-upload" severity="help" @click="exportCSV($event)" />
         </template>
-    </Toolbar>  
+    </Toolbar>
     <!-- DataTable Component -->
     <DataTable :value="items" :rows="rows">
       <Column v-for="col in columns" :key="col.field" :field="col.field" :header="col.header" style="min-width: 12rem"></Column>
             <Column field="id" header="ID" style="min-width: 12rem"></Column>
+            <Column field="item_code" header="Item Code" style="min-width: 12rem"></Column>
+            <Column field="item_name" header="Item Name" style="min-width: 12rem"></Column>
+            <Column field="item_spec" header="Item Spec" style="min-width: 12rem"></Column>
+            <Column field="qty_safety" header="Qty Safety" style="min-width: 12rem"></Column>
+            <Column field="safety_m" header="Safety M" style="min-width: 12rem"></Column>
+            <Column field="dol_trade" header="DOL Trade" style="min-width: 12rem"></Column>
             <Column field="price_type" header="Price Type" style="min-width: 12rem"></Column>
             <Column field="std_cost" header="Standard Cost" style="min-width: 12rem"></Column>
-            <Column field="qty_pack" header="Qty Pack" style="min-width: 12rem"></Column>
-            <Column field="std_wgt" header="Standard Weight" style="min-width: 12rem"></Column>
-            <Column field="size_code" header="Size Code" style="min-width: 12rem"></Column>
+            <Column field="durability" header="Durability" style="min-width: 12rem"></Column>
             <Column field="unit_po" header="Unit PO" style="min-width: 12rem"></Column>
             <Column field="vend_proc" header="Vendor Process" style="min-width: 12rem"></Column>
             <Column field="unit_stk" header="Unit Stock" style="min-width: 12rem"></Column>
-            <Column field="item_name" header="Item Name" style="min-width: 12rem"></Column>
-            <Column field="item_code" header="Item Code" style="min-width: 12rem"></Column>
-            <Column field="item_spec" header="Item Spec" style="min-width: 12rem"></Column>
-            <Column field="brand_code" header="Brand Code" style="min-width: 12rem"></Column>
             <Column field="unit_pr" header="Unit Price" style="min-width: 12rem"></Column>
+            <Column field="lead_time" header="Lead Time" style="min-width: 12rem"></Column>
             <Column field="unit_prod" header="Unit Production" style="min-width: 12rem"></Column>
             <Column field="series_type" header="Series Type" style="min-width: 12rem"></Column>
             <Column field="unit_sales" header="Unit Sales" style="min-width: 12rem"></Column>
             <Column field="phanton" header="Phanton" style="min-width: 12rem"></Column>
             <Column field="unit_usg" header="Unit Usage" style="min-width: 12rem"></Column>
-            <Column field="color_code" header="Color Code" style="min-width: 12rem"></Column>
-            <Column field="color_tol_code" header="Color Tol Code" style="min-width: 12rem"></Column>
-            <Column field="size_tol_code" header="Size Tol Code" style="min-width: 12rem"></Column>
-            <Column field="density_code" header="Density Code" style="min-width: 12rem"></Column>
+            <Column field="qty_min" header="Quantity Min" style="min-width: 12rem"></Column>
             <Column field="level_code" header="Level Code" style="min-width: 12rem"></Column>
             <Column field="created_at" header="Created At" style="min-width: 12rem"></Column>
             <Column field="created_by" header="Created By" style="min-width: 12rem"></Column>
             <Column field="updated_at" header="Updated At" style="min-width: 12rem"></Column>
             <Column field="updated_by" header="Updated By" style="min-width: 12rem"></Column>
-            <Column field="kw_1_xx_percentage" header="Plus Minus Percentage" style="min-width: 12rem"></Column>
+            <Column field="usage_to" header="Usage To" style="min-width: 12rem"></Column>
+            <Column field="plus_minus_percentage" header="Plus Minus Percentage" style="min-width: 12rem"></Column>
+            <Column field="standar_plus_minus" header="Standard Plus Minus" style="min-width: 12rem"></Column>
+            <Column field="kw_1_xx_percentage" header="KW 1 XX Percentage" style="min-width: 12rem"></Column>
+            <Column field="fixed_lot" header="Fixed Lot" style="min-width: 12rem"></Column>
             <Column :exportable="false" style="min-width: 12rem" header="Actions" alignFrozen="right" frozen>
             <template #body="slotProps">
                 <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="edit(slotProps.data)" />
@@ -59,14 +61,14 @@
     ></Paginator>
   </div>
 
-  <Dialog v-model:visible="formDialog" modal header="FG Details" :modal="true" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+  <Dialog v-model:visible="formDialog" modal header="Raw Material Details" :modal="true" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <div class="grid grid-cols-12 gap-4 mt-1">
     <!-- Row 1 -->
     <div class="col-span-4">
         <div class="flex items-center">
           <label class="w-32 font-semibold">Item Code</label>
           <div class="flex-1">
-            <InputText v-model.trim="item.item_code" class="w-full" required autofocus :invalid="submitted && !item.item_code" @blur="validateAndProcessInput" fluid/>
+            <InputText v-model.trim="item.item_code" class="w-full" required autofocus :invalid="submitted && !item.item_code" fluid/>
           </div>
         </div>
         <small v-if="submitted && !item.item_code" class="text-red-500 block mt-1 ml-32">Item Code is required.</small>
@@ -101,7 +103,7 @@
         <div class="flex items-center">
           <label class="w-32 font-semibold">Item Spec</label>
           <div class="flex-1">
-            <InputText v-model.trim="item.item_spec" class="w-full" required fluid/>
+            <InputText v-model.trim="item.item_spec" class="w-full" required autofocus :invalid="submitted && !item.item_spec" fluid/>
           </div>
         </div>
         <small v-if="submitted && !item.item_spec" class="text-red-500 block mt-1 ml-32">Item Spec is required.</small>
@@ -158,137 +160,58 @@
     </div>
     <div class="col-span-4">
       <div class="flex items-center">
-        <label class="w-32 font-semibold">Brand</label>
-        <multiselect
-          class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
-          v-model="selectedBrand"
-          :options="brandOptions"
-          :searchable="true"
-          :closeOnSelect="true"
-          :clearOnSelect="true"
-          placeholder=""
-          label="label"
-          track-by="code"
-        />
-      </div>
-    </div>
-    <div class="col-span-8">
-      <div class="flex items-center">
-        <label class="w-32 font-semibold">Density</label>
-        <multiselect
-          class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
-          v-model="selectedDensity"
-          :options="densityOptions"
-          :searchable="true"
-          :closeOnSelect="true"
-          :clearOnSelect="true"
-          placeholder=""
-          label="label"
-          track-by="code"
-        />
+        <label class="w-32 font-semibold">Qty. Min</label>
+        <InputText v-model.trim="item.qty_min" class="flex-1 w-full" />
       </div>
     </div>
     <div class="col-span-4">
       <div class="flex items-center">
-        <label class="w-32 font-semibold">Size</label>
-        <multiselect
-          class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
-          v-model="selectedSize"
-          :options="sizeOptions"
-          :searchable="true"
-          :closeOnSelect="true"
-          :clearOnSelect="true"
-          placeholder=""
-          label="label"
-          track-by="code"
-        />
+        <label class="w-32 font-semibold">Usage T.O</label>
+        <InputText v-model.trim="item.usage_to" class="flex-1 w-full" />
       </div>
     </div>
     <div class="col-span-4">
       <div class="flex items-center">
-        <label class="w-32 font-semibold">Color</label>
-        <multiselect
-          class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
-          v-model="selectedColor"
-          :options="colorOptions"
-          :searchable="true"
-          :closeOnSelect="true"
-          :clearOnSelect="true"
-          placeholder=""
-          label="label"
-          track-by="code"
-        />
+        <label class="w-32 font-semibold">Safety M.</label>
+        <InputText v-model.trim="item.safety_m" class="flex-1 w-full" />
       </div>
     </div>
     <div class="col-span-4">
       <div class="flex items-center">
-        <label class="w-32 font-semibold">Color Tol.</label>
-        <multiselect
-          class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
-          v-model="selectedColorTol"
-          :options="colorTolOptions"
-          :searchable="true"
-          :closeOnSelect="true"
-          :clearOnSelect="true"
-          placeholder=""
-          label="label"
-          track-by="code"
-        />
+        <label class="w-32 font-semibold">Lead Time</label>
+        <InputText v-model.trim="item.lead_time" class="flex-1 w-full" />
       </div>
     </div>
     <div class="col-span-4">
       <div class="flex items-center">
-        <label class="w-32 font-semibold">Size Tol.</label>
-        <multiselect
-          class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
-          v-model="selectedSizeTol"
-          :options="sizeTolOptions"
-          :searchable="true"
-          :closeOnSelect="true"
-          :clearOnSelect="true"
-          placeholder=""
-          label="label"
-          track-by="code"
-        />
+        <label class="w-32 font-semibold">Qty. Safety</label>
+        <InputText v-model.trim="item.qty_safety" class="flex-1 w-full" />
       </div>
     </div>
     <div class="col-span-4">
       <div class="flex items-center">
-        <label class="w-32 font-semibold">Item Grade</label>
-        <InputText v-model.trim="item.item_grade" class="flex-1 w-full" disabled/>
+        <label class="w-32 font-semibold">Plus/Minus %</label>
+        <InputText v-model.trim="item.plus_minus_percentage" class="flex-1 w-full" />
       </div>
     </div>
     <div class="col-span-4">
       <div class="flex items-center">
-        <label class="w-32 font-semibold">Grade Name</label>
-        <InputText v-model.trim="item.item_grade_name" class="flex-1 w-full" disabled/>
+        <label class="w-32 font-semibold">Durability</label>
+        <InputText v-model.trim="item.durability" class="flex-1 w-full" />
       </div>
     </div>
     <div class="col-span-4">
       <div class="flex items-center">
-        <label class="w-32 font-semibold">Price Type</label>
-        <InputText v-model.trim="item.price_type" class="flex-1 w-full" disabled/>
+        <label class="w-32 font-semibold">Std. Plus/Minus</label>
+        <InputText v-model.trim="item.standar_plus_minus" class="flex-1 w-full" />
       </div>
     </div>
     <div class="col-span-4">
       <div class="flex items-center">
-        <label class="w-32 font-semibold">Qty. Pack</label>
-        <InputText v-model.trim="item.qty_pack" class="flex-1 w-full" />
+        <label class="w-32 font-semibold">Fixed Lot</label>
+        <InputText v-model.trim="item.fixed_lot" class="flex-1 w-full" />
       </div>
-    </div>
-    
-    <div class="col-span-4">
-      <div class="flex items-center">
-        <label class="w-32 font-semibold">Std. Weight</label>
-        <InputText v-model.trim="item.std_wgt" class="flex-1 w-full" />
-      </div>
-    </div>            
-    <div class="col-span-4">
-      <div class="flex items-center">
-        <label class="w-32 font-semibold">KW-1 xx%</label>
-        <InputText v-model.trim="item.kw_1_xx_percentage" class="flex-1 w-full" />
-      </div>
-    </div>
+    </div>           
   </div>
     <template #footer>
       <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
@@ -327,21 +250,7 @@ const totalRecords = ref(0);
 const submitted = ref(false);
 const isEditMode = ref(false);
 const toast = useToast();
-const selectedSeriesType = ref({label: '', code: ''});
-const seriesTypeOptions = ref([]);
-const selectedBrand = ref({label: '', code: ''});
-const brandOptions = ref([]);
-const selectedSize = ref({label: '', code: ''});
-const sizeOptions = ref([]);
-const selectedColor = ref({label: '', code: ''});
-const colorOptions = ref([]);
-const selectedDensity = ref({label: '', code: ''});
-const densityOptions = ref([]);
-const selectedColorTol = ref({label: '', code: ''});
-const colorTolOptions = ref([]);
-const selectedSizeTol = ref({label: '', code: ''});
-const sizeTolOptions = ref([]);
-
+const inventoryTypeId = 8 // id inventory type raw material
 const pagination = ref({
   total: 0,
   per_page: 10,
@@ -350,147 +259,97 @@ const pagination = ref({
   last: 0
 });
 
+// Fungsi untuk memproses item_code
+const processItemCode = (code) => {
+  if (!code) return '';
+  
+  // Pisahkan item_code berdasarkan titik ('.')
+  const parts = code.split('.');
+  
+  // Periksa apakah item_code dimulai dengan '0' atau 'RW'
+  if (parts.length > 0 && (parts[0] === '0' || parts[0] === 'RW')) {
+    // Jika format dimulai dengan '0'
+    if (parts[0] === '0') {
+      // Periksa apakah bagian kedua adalah '45'
+      if (parts.length === 3 && parts[1] === '45') {
+        // Jika ya, kembalikan '43'
+        return '43';
+      }
+      // Jika format "0.XX.YYYY" atau "0.XX.ZZZ"
+      if (parts.length === 3) {
+        return parseInt(parts[1], 10); // Ambil nilai XX dan ubah menjadi angka
+      }
+    } 
+    else if (parts[0] === 'RW' && parts.length === 3) {
+        return parts[1]; // Ambil nilai BO dan kembalikan
+      }
+    }
+    // Format tidak dikenali atau tidak sesuai dengan kriteria
+    return '';
+};
+
 const openNew = () => {
   item.value = { 
-    qty_pack: 0,
-    std_wgt: 0,
-    size_code: '',
-    unit_po: 'KG',
-    price_type: '',
-    vendor_proc: '',
-    unit_stk: 'KG',
-    item_name: '',
     item_code: '',
     item_spec: '',
-    item_grade: '',
-    item_grade_name: '',
-    brand_code: '',
-    unit_pr: 'KG',
-    item_order_code: '',
-    unit_prod: 'KG',
+    dol_trade: '',
+    std_cost: 0,
     series_type: '',
-    unit_sales: 'KG',
-    phanton: 'Y',
-    unit_usg: 'KG',
-    color_code: '',
-    color_tol_code: '',
-    size_tol_code: '',
-    density_code: '',
-    business_type: '',
+    series_name: '',
+    item_name: '',
+    qty_min: 0,
+    usage_to: 0,
+    safety_m: 0,
+    lead_time: 0,
+    qty_safety: 0, 
+    plus_minus_percentage: 0,
+    durability: 0,
+    standar_plus_minus: 0,
+    unit_stk: 'KG',
     level_code: 'N',
-    kw_1_xx_percentage: 0,
+    unit_prod: 'KG',
+    unit_po: 'KG',
+    unit_pr: 'KG',
+    unit_sales: 'KG',
+    unit_usg: 'KG',
+    phanton: 'Y',
+    st_cost: 0,
+    fixed_lot: 0,
   };
   selectedSeriesType.value = {label: '', code: ''};
-  selectedBrand.value = {label: '', code: ''};
-  selectedSize.value = {label: '', code: ''};
-  selectedColor.value = {label: '', code: ''};
-  selectedColorTol.value = {label: '', code: ''};
-  selectedDensity.value = {label: '', code: ''};
-  selectedSizeTol.value = {label: '', code: ''};
   submitted.value = false;
   isEditMode.value = false;
   formDialog.value = true;
-  fetchSeriesTypes();
-  fetchBrands();
-  fetchSizes();
-  fetchColors();
-  fetchDensities();
-  fetchColorTols();
-  fetchSizeTols();
+  fetchSeriesTypes(inventoryTypeId);
 };
-const fetchSeriesTypes = async () => {
-    try {
-      const response = await axios.get(route('series-types.index'));
+
+const selectedSeriesType = ref({label: '', code: ''});
+const seriesTypeOptions = ref([]);
+const fetchSeriesTypes = async (inventoryTypeId) => {
+  try {
+      const response = await axios.get(route('series-types-by-inventory-type'), {
+          params: {
+              inventory_type_id: inventoryTypeId
+          }
+      });
       seriesTypeOptions.value = response.data.seriesTypes.map(type => ({
         label: (type.series_type_code.trimEnd() + ' | ' + type.series_type_name), // Untuk display di dropdown
         code: type.series_type_code.trimEnd(), // Nilai yang dipilih
       }));
-    } catch (error) {
+  } catch (error) {
       console.error('Failed to fetch series types:', error);
-    }
-};
-
-const fetchBrands = async () => {
-    try {
-      const response = await axios.get(route('brands.index'));
-      brandOptions.value = response.data.brands.map(brand => ({
-        label: (brand.brand_code.trimEnd() + ' | ' + brand.brand_name), // Untuk display di dropdown
-        code: brand.brand_code.trimEnd(), // Nilai yang dipilih
-      }));
-    } catch (error) {
-      console.error('Failed to fetch brands:', error);
-    }
-};
-
-const fetchSizes = async () => {
-    try {
-        const response = await axios.get(route('sizes.index'));
-        sizeOptions.value = response.data.sizes.map(size => ({
-            label: (size.size_code.trimEnd() + ' | ' + size.size_name), // Untuk display di dropdown
-            code: size.size_code.trimEnd(), // Nilai yang dipilih
-        }));
-    } catch (error) {
-        console.error('Failed to fetch sizes:', error);
-    }
-};
-
-const fetchColors = async () => {
-    try {
-        const response = await axios.get(route('colors.index'));
-        colorOptions.value = response.data.colors.map(color => ({
-            label: (color.color_code.trimEnd() + ' | ' + color.color_name), // Untuk display di dropdown
-            code: color.color_code.trimEnd(), // Nilai yang dipilih
-        }));
-    } catch (error) {
-        console.error('Failed to fetch colors:', error);
-    }
-};
-
-const fetchColorTols = async () => {
-    try {
-        const response = await axios.get(route('color-tols.index'));
-        colorTolOptions.value = response.data.colorTols.map(colorTol => ({
-            label: (colorTol.color_tol_code.trimEnd() + ' | ' + colorTol.color_tol_name), // Untuk display di dropdown
-            code: colorTol.color_tol_code.trimEnd(), // Nilai yang dipilih
-        }));
-    } catch (error) {
-        console.error('Failed to fetch colorTols:', error);
-    }
+  }
 }
-
-const fetchSizeTols = async () => {
-    try {
-        const response = await axios.get(route('size-tols.index'));
-        sizeTolOptions.value = response.data.sizeTols.map(sizeTol => ({
-            label: (sizeTol.size_tol_code.trimEnd() + ' | ' + sizeTol.size_tol_name), // Untuk display di dropdown
-            code: sizeTol.size_tol_code.trimEnd(), // Nilai yang dipilih
-        }));
-    } catch (error) {
-        console.error('Failed to fetch sizeTols:', error);
-    }
-}
-
-const fetchDensities = async () => {
-    try {
-        const response = await axios.get(route('densities.index'));
-        densityOptions.value = response.data.densities.map(density => ({
-            label: (density.density_code.trimEnd() + ' | ' + density.density_name), // Untuk display di dropdown
-            code: density.density_code.trimEnd(), // Nilai yang dipilih
-        }));
-    } catch (error) {
-        console.error('Failed to fetch densities:', error);
-    }
-};
-
 
 const hideDialog = () => {
-  formDialog.value = false;
-  submitted.value = false;
+formDialog.value = false;
+submitted.value = false;
 };
+
 
 const fetchData = async (page = 1) => {
   try {
-    const response = await axios.get(route('fgs.index'), {
+    const response = await axios.get(route('raw-materials.index'), {
       params: {
         page: page,
         per_page: pagination.value.per_page
@@ -527,48 +386,38 @@ onMounted(() => {
   fetchData();
 });
 const save = async () => {
-  submitted.value = true;    
+  submitted.value = true;
+  const processedItemCode = processItemCode(item.value.item_code);
+  
   if (item.value.item_code.trim() && item.value.item_spec.trim()) {
     try {
       if (isEditMode.value) {
-        await axios.put(route('fgs.update', item.value.id), {
+        await axios.put(route('raw-materials.update', item.value.id), {
           ...item.value, // Mengambil semua nilai dari item.value
           series_type: selectedSeriesType.value.code.toString(),
-          brand_code: selectedBrand.value.code.toString(),
-          size_code: selectedSize.value.code.toString(),
-          color_code: selectedColor.value.code.toString(),
-          color_tol_code: selectedColorTol.value.code.toString(),
-          density_code: selectedDensity.value.code.toString(),
-          size_tol_code: selectedSizeTol.value.code.toString(),
+          vend_proc: processedItemCode.toString()
         });
-        toast.add({ severity: 'success', summary: 'Success', detail: 'FG updated successfully', life: 3000 });
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Raw Material updated successfully', life: 3000 });
       } else {
-        await axios.post(route('fgs.store'), {
+        await axios.post(route('raw-materials.store'), {
           ...item.value, // Mengambil semua nilai dari item.value
-          series_type: selectedSeriesType.value.code.toString(), 
-          brand_code: selectedBrand.value.code.toString(),
-          size_code: selectedSize.value.code.toString(),
-          color_code: selectedColor.value.code.toString(),
-          color_tol_code: selectedColorTol.value.code.toString(),
-          density_code: selectedDensity.value.code.toString(),
-          size_tol_code: selectedSizeTol.value.code.toString(),
+          series_type: selectedSeriesType.value.code.toString(),
+          vend_proc: processedItemCode.toString() 
         });
-        toast.add({ severity: 'success', summary: 'Success', detail: 'FG created successfully', life: 3000 });
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Raw Material created successfully', life: 3000 });
       }
       fetchData();
       hideDialog();
-    } catch (error) {        
-      console.log(error)
-      console.error('Error saving FG:', error.response.data);
-      toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save FG', life: 3000 });
+    } catch (error) {
+      console.error('Error saving raw material:', error.response.data);
+      // toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save raw material', life: 3000 });
     }
   }
 };
 
-const edit = async (FGData) => {
-  await fetchSeriesTypes();
-  item.value = { ...FGData };
-  item.value.item_grade_name = getItemGradeName(item.value.item_code);
+const edit = async (rawMaterialData) => {
+  await fetchSeriesTypes(inventoryTypeId); // Tunggu hingga data selesai di-fetch
+  item.value = { ...rawMaterialData };
   // Check if series_type is empty or not
   if (item.value.series_type === '' || item.value.series_type === null) {
     selectedSeriesType.value = { label: '', code: '' };
@@ -579,62 +428,6 @@ const edit = async (FGData) => {
     }
   }
 
-  await fetchBrands();
-  if (item.value.brand === '' || item.value.brand === null) {
-    selectedBrand.value = { label: '', code: '' };
-  } else {
-    const selectedOption = brandOptions.value.find(option => option.code.trim() === item.value.brand_code.trim());
-    if (selectedOption) {
-      selectedBrand.value = selectedOption;
-    }
-  }
-
-  await fetchSizes();
-  if (item.value.size === '' || item.value.size === null) {
-    selectedSize.value = { label: '', code: '' };
-  } else {
-    const selectedOption = sizeOptions.value.find(option => option.code.trim() === item.value.size_code.trim());
-    if (selectedOption) {
-      selectedSize.value = selectedOption;
-    }
-  }
-  await fetchColors();
-  if (item.value.color === '' || item.value.color === null) {
-    selectedColor.value = { label: '', code: '' };
-  } else {
-    const selectedOption = colorOptions.value.find(option => option.code.trim() === item.value.color_code.trim());
-    if (selectedOption) {
-      selectedColor.value = selectedOption;
-    }
-  }
-  await fetchDensities();
-  if (item.value.density === '' || item.value.density === null) {
-    selectedDensity.value = { label: '', code: '' };
-  } else {
-    const selectedOption = densityOptions.value.find(option => option.code.trim() === item.value.density_code.trim());
-    if (selectedOption) {
-      selectedDensity.value = selectedOption;
-    }
-  }
-
-  await fetchSizeTols();
-  if (item.value.size_tol === '' || item.value.size_tol === null) {
-    selectedSizeTol.value = { label: '', code: '' };
-  } else {
-    const selectedOption = sizeTolOptions.value.find(option => option.code.trim() === item.value.size_tol_code.trim());
-    if (selectedOption) {
-      selectedSizeTol.value = selectedOption;
-    }
-  }
-  await fetchColorTols();
-  if (item.value.color_tol === '' || item.value.color_tol === null) {
-    selectedColorTol.value = { label: '', code: '' };
-  } else {
-    const selectedOption = colorTolOptions.value.find(option => option.code.trim() === item.value.color_tol_code.trim());
-    if (selectedOption) {
-      selectedColorTol.value = selectedOption;
-    } 
-  }
   submitted.value = false;
   isEditMode.value = true;
   formDialog.value = true;
@@ -645,117 +438,11 @@ const confirmDelete = (emp) => {
   deleteDialog.value = true;
 };
 const deleteItem = async () => {
-  await axios.delete(route('fgs.destroy', item.value.id));
+  await axios.delete(route('raw-materials.destroy', item.value.id));
   deleteDialog.value = false;
   fetchData();
-  toast.add({severity:'success', summary: 'Successful', detail: 'FG Deleted', life: 3000});
+  toast.add({severity:'success', summary: 'Successful', detail: 'Raw Material Deleted', life: 3000});
 };
-
-const validateAndProcessInput = async () => {
-  submitted.value = true;
-  const code = item.value.item_code;
-
-  if (code.length < 16) {
-      alert('Item code must be at least 16 characters long.');
-      return;
-  }
-
-  // Process input to populate dropdowns and itemGrade
-  const brand_code = getBrand(code);
-  if (brand_code === '' || brand_code === null) {
-    selectedBrand.value = { label: '', code: '' };
-  } else {
-    const selectedOption = brandOptions.value.find(option => option.code.trim() === brand_code.trim());
-    if (selectedOption) {
-      selectedBrand.value = selectedOption;
-    }
-  }
-
-  const size_code = getSize(code);
-  if (size_code === '' || size_code === null) {
-    selectedSize.value = { label: '', code: '' };
-  } else {
-    const selectedOption = sizeOptions.value.find(option => option.code.trim() === size_code.trim());
-    if (selectedOption) {
-      selectedSize.value = selectedOption;
-    }
-  }
-
-  const series_type = getSeriesType(code);
-  if (series_type === '' || series_type === null) {
-    selectedSeriesType.value = { label: '', code: '' };
-  } else {
-    const selectedOption = seriesTypeOptions.value.find(option => option.code.trim() === series_type.trim());
-    if (selectedOption) {
-      selectedSeriesType.value = selectedOption;
-    }
-  }
-
-  const density_code = getDensityCode(code);
-  if (density_code === '' || density_code === null) {
-    selectedDensity.value = { label: '', code: '' };
-  } else {
-    const selectedOption = densityOptions.value.find(option => option.code.trim() === density_code.trim());
-    if (selectedOption) {
-      selectedDensity.value = selectedOption;
-    }
-  }
-
-  const color_code = getColor(code);
-  if (color_code === '' || color_code === null) {
-    selectedColor.value = { label: '', code: '' };
-  } else {
-    const selectedOption = colorOptions.value.find(option => option.code.trim() === color_code.trim());
-    if (selectedOption) {
-      selectedColor.value = selectedOption;
-    }
-  }
-
-  const color_tol_code = getColorTol(code);
-  if (color_tol_code === '' || color_tol_code === null) {
-    selectedColorTol.value = { label: '', code: '' };
-  } else {
-    const selectedOption = colorTolOptions.value.find(option => option.code.trim() === color_tol_code.trim());
-    if (selectedOption) {
-      selectedColorTol.value = selectedOption;
-    }
-  }
-
-  const size_tol_code = getSizeTolCode(code);
-  if (size_tol_code === '' || size_tol_code === null) {
-    selectedSizeTol.value = { label: '', code: '' };
-  } else {
-    const selectedOption = sizeTolOptions.value.find(option => option.code.trim() === size_tol_code.trim());
-    if (selectedOption) {
-      selectedSizeTol.value = selectedOption;
-    }
-  }
-  item.value.item_grade = getItemGrade(code);
-  item.value.item_grade_name = getItemGradeName(code);
-  item.value.price_type = getPriceType(code);
-  }
-
-  // Functions to extract specific parts of the item code
-  const getBrand = (code) => code[3] || '';   
-  const getSize = (code) => code.substring(4, 6) || '';   
-  const getSeriesType = (code) => code.substring(6, 9) || ''; 
-  const getDensityCode = (code) => code[10] || '';    
-  const getColor = (code) => code.substring(11, 13) || '';    
-  const getColorTol = (code) => code[13] || '';   
-  const getSizeTolCode = (code) => code[14] || '';    
-  const getItemGrade = (code) => code[15] || '';
-  const getPriceType = (code) => code.substring(0, 13) || ''; 
-  const getItemGradeName = (code) => {
-      if(code[15] === '1') {
-          return 'KW 1'
-      }
-      else if(code[15] === '2') {
-          return 'KW 2'
-      }
-      else {
-          return 'KW 3'
-      }
-  }
 </script>
 
 <style>
@@ -763,4 +450,3 @@ const validateAndProcessInput = async () => {
   padding: 20px;
 }
 </style>
-  

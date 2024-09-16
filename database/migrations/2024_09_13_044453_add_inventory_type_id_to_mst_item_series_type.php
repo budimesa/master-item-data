@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('mst_item_series_type', function (Blueprint $table) {
             // Menambahkan kolom inventory_type_id tanpa foreign key constraint
-            $table->unsignedBigInteger('inventory_type_id')->default(1);
+            // $table->unsignedBigInteger('inventory_type_id')->default(1);
 
             // Jika Anda ingin menambahkan index untuk kolom ini, Anda dapat menggunakan:
             // $table->index('inventory_type_id');
@@ -27,7 +27,7 @@ return new class extends Migration
     {
         Schema::table('mst_item_series_type', function (Blueprint $table) {
             // Menghapus kolom inventory_type_id
-            $table->dropColumn('inventory_type_id');
+            // $table->dropColumn('inventory_type_id');
         });
     }
 };
