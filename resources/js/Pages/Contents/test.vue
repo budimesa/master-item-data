@@ -1,141 +1,80 @@
-
 <template>
-  <div class="card">
-      <DataTable v-model:filters="filters" :value="customers" paginator :rows="10" dataKey="id" filterDisplay="row" :loading="loading"
-              :globalFilterFields="['name', 'country.name', 'representative.name', 'status']">
-          <template #header>
-              <div class="flex justify-end">
-                  <IconField>
-                      <InputIcon>
-                          <i class="pi pi-search" />
-                      </InputIcon>
-                      <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
-                  </IconField>
-              </div>
-          </template>
-          <template #empty> No customers found. </template>
-          <template #loading> Loading customers data. Please wait. </template>
-          <Column field="name" header="Name" style="min-width: 12rem">
-              <template #body="{ data }">
-                  {{ data.name }}
-              </template>
-              <template #filter="{ filterModel, filterCallback }">
-                  <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Search by name" />
-              </template>
-          </Column>
-          <Column header="Country" filterField="country.name" style="min-width: 12rem">
-              <template #body="{ data }">
-                  <div class="flex items-center gap-2">
-                      <img alt="flag" src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png" :class="`flag flag-${data.country.code}`" style="width: 24px" />
-                      <span>{{ data.country.name }}</span>
-                  </div>
-              </template>
-              <template #filter="{ filterModel, filterCallback }">
-                  <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Search by country" />
-              </template>
-          </Column>
-          <Column header="Agent" filterField="representative" :showFilterMenu="false" style="min-width: 14rem">
-              <template #body="{ data }">
-                  <div class="flex items-center gap-2">
-                      <img :alt="data.representative.name" :src="`https://primefaces.org/cdn/primevue/images/avatar/${data.representative.image}`" style="width: 32px" />
-                      <span>{{ data.representative.name }}</span>
-                  </div>
-              </template>
-              <template #filter="{ filterModel, filterCallback }">
-                  <MultiSelect v-model="filterModel.value" @change="filterCallback()" :options="representatives" optionLabel="name" placeholder="Any" style="min-width: 14rem" :maxSelectedLabels="1">
-                      <template #option="slotProps">
-                          <div class="flex items-center gap-2">
-                              <img :alt="slotProps.option.name" :src="`https://primefaces.org/cdn/primevue/images/avatar/${slotProps.option.image}`" style="width: 32px" />
-                              <span>{{ slotProps.option.name }}</span>
-                          </div>
-                      </template>
-                  </MultiSelect>
-              </template>
-          </Column>
-          <Column field="status" header="Status" :showFilterMenu="false" style="min-width: 12rem">
-              <template #body="{ data }">
-                  <Tag :value="data.status" :severity="getSeverity(data.status)" />
-              </template>
-              <template #filter="{ filterModel, filterCallback }">
-                  <Select v-model="filterModel.value" @change="filterCallback()" :options="statuses" placeholder="Select One" style="min-width: 12rem" :showClear="true">
-                      <template #option="slotProps">
-                          <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
-                      </template>
-                  </Select>
-              </template>
-          </Column>
-          <Column field="verified" header="Verified" dataType="boolean" style="min-width: 6rem">
-              <template #body="{ data }">
-                  <i class="pi" :class="{ 'pi-check-circle text-green-500': data.verified, 'pi-times-circle text-red-400': !data.verified }"></i>
-              </template>
-              <template #filter="{ filterModel, filterCallback }">
-                  <Checkbox v-model="filterModel.value" :indeterminate="filterModel.value === null" binary @change="filterCallback()" />
-              </template>
-          </Column>
-      </DataTable>
-  </div>
-</template>
-
-<script setup>
-import { ref, onMounted } from 'vue';
-import { FilterMatchMode } from '@primevue/core/api';
-import { CustomerService } from '@/service/CustomerService';
-
-const customers = ref();
-const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-  'country.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-  representative: { value: null, matchMode: FilterMatchMode.IN },
-  status: { value: null, matchMode: FilterMatchMode.EQUALS },
-  verified: { value: null, matchMode: FilterMatchMode.EQUALS }
-});
-const representatives = ref([
-  { name: 'Amy Elsner', image: 'amyelsner.png' },
-  { name: 'Anna Fali', image: 'annafali.png' },
-  { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-  { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-  { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-  { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-  { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-  { name: 'Onyama Limba', image: 'onyamalimba.png' },
-  { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-  { name: 'XuXue Feng', image: 'xuxuefeng.png' }
-]);
-const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
-const loading = ref(true);
-
-onMounted(() => {
-  CustomerService.getCustomersMedium().then((data) => {
-          customers.value = getCustomers(data);
-          loading.value = false;
-      });
-});
-
-const getCustomers = (data) => {
-  return [...(data || [])].map((d) => {
-      d.date = new Date(d.date);
-
-      return d;
-  });
-};
-const getSeverity = (status) => {
-  switch (status) {
-      case 'unqualified':
-          return 'danger';
-
-      case 'qualified':
-          return 'success';
-
-      case 'new':
-          return 'info';
-
-      case 'negotiation':
-          return 'warn';
-
-      case 'renewal':
-          return null;
-  }
-}
-
-</script>
+    <DashboardLayout>
+      <div class="p-6">
+        <h1 class="text-2xl font-bold mb-4">General Data</h1>        
+        <Tabs :value="activeTab">
+          <TabList>
+            <Tab value="0" @click="selectTab('0')">Brand</Tab>
+            <Tab value="1" @click="selectTab('1')">Color</Tab>
+            <Tab value="2" @click="selectTab('2')">Color Tol</Tab>
+            <Tab value="3" @click="selectTab('3')">Density</Tab>
+            <Tab value="4" @click="selectTab('4')">Item Type</Tab>
+            <Tab value="5" @click="selectTab('5')">Series Type</Tab>
+            <Tab value="6" @click="selectTab('6')">Size</Tab>
+            <Tab value="7" @click="selectTab('7')">Size Tol</Tab>
+            <Tab value="8" @click="selectTab('8')">Inventory Type</Tab>
+          </TabList>
+          <TabPanels>
+              <TabPanel value="0">
+                <BrandContent />
+              </TabPanel>
+              <TabPanel value="1">
+                <ColorContent />
+              </TabPanel>
+              <TabPanel value="2">
+                <ColorTolContent />
+              </TabPanel>
+              <TabPanel value="3">
+                <DensityContent />
+              </TabPanel>
+              <TabPanel value="4">
+                <ItemTypeContent />
+              </TabPanel>
+              <TabPanel value="5">
+                <SeriesTypeContent />
+              </TabPanel>
+              <TabPanel value="6">
+                <SizeContent />
+              </TabPanel>
+              <TabPanel value="7">
+                <SizeTolContent />
+              </TabPanel>
+              <TabPanel value="8">
+                <InventoryTypeContent />
+              </TabPanel>
+          </TabPanels>
+      </Tabs>
+      </div>
+    </DashboardLayout>
+  </template>
+  
+  <script setup>
+  import DashboardLayout from '@/Layouts/DashboardLayout.vue';
+  import BrandContent from './Contents/BrandContent.vue';
+  import ColorContent from './Contents/ColorContent.vue';
+  import ColorTolContent from './Contents/ColorTolContent.vue';
+  import ItemTypeContent from './Contents/ItemTypeContent.vue';
+  import SizeContent from './Contents/SizeContent.vue';
+  import SizeTolContent from './Contents/SizeTolContent.vue';
+  import SeriesTypeContent from './Contents/SeriesTypeContent.vue';
+  import InventoryTypeContent from './Contents/InventoryTypeContent.vue';
+  import DensityContent from './Contents/DensityContent.vue';
+  import { onMounted, ref } from 'vue';
+  
+  
+  const getInitialTab = () => {
+    const storedTab = localStorage.getItem('activeTab');
+    return storedTab ? storedTab : '0'; // Default to '0' if no value is found
+  };
+  
+  // Initialize activeTab from localStorage
+  const activeTab = ref(getInitialTab());
+  
+  // Function to handle tab selection
+  const selectTab = (tabValue) => {
+    activeTab.value = tabValue;
+    localStorage.setItem('activeTab', tabValue); // Save selected tab to localStorage
+  };
+  
+  </script>
+  

@@ -44,7 +44,6 @@ class RawMaterialController extends Controller
         ]);
     }
 
-
     public function store(Request $request)
     {
         $data = $request->validate([

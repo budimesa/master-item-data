@@ -24,7 +24,11 @@
                   </div>
               </template>
             <!-- <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column> -->
-            <Column field="id" header="ID" sortable style="min-width: 12rem"></Column>
+            <Column header="No" style="min-width: 5rem">
+              <template #body="{ index }">
+                {{ index + 1 }}
+              </template>
+            </Column>
             <!-- <Column field="brand_name" header="Brand Name" sortable style="min-width: 16rem"></Column> -->
             <Column field="brand_name" header="Brand Name" style="min-width: 12rem">
               <template #body="{ data }">

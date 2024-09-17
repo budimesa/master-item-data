@@ -41,11 +41,11 @@ Route::resource('series-types', SeriesTypeController::class);
 Route::get('/series-types-by-inventory-type', [SeriesTypeController::class, 'getSeriesTypesByInventoryType'])->name('series-types-by-inventory-type');
 Route::resource('sizes', SizeController::class);
 Route::resource('size-tols', SizeTolController::class);
+Route::resource('inventory-types', InventoryTypeController::class);
 Route::resource('raw-materials', RawMaterialController::class);
 Route::resource('wfgs', WFGController::class);
 Route::resource('sfgs', SFGController::class);
 Route::resource('fgs', FGController::class);
-Route::resource('inventory-types', InventoryTypeController::class);
 
 
 Route::get('/master/general-data', function () {

@@ -10,29 +10,36 @@ class SFGController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10); // Default 10
-        $currentPage = $request->input('page', 1); // Default 1
+        $query = SemiFinishedGood::query();
 
-        // Mendapatkan parameter sort_by dan sort_direction dari request
-        $sortBy = $request->input('sort_by', 'id'); // Default sort by 'id'
-        $sortDirection = $request->input('sort_direction', 'desc'); // Default sort direction 'desc'
-
-        // Validasi nilai sort_direction
-        if (!in_array($sortDirection, ['asc', 'desc'])) {
-            $sortDirection = 'desc'; // Atur default jika nilai tidak valid
+        // Apply global filter
+        if ($request->has('filters.global.value')) {
+            $query->where('item_code', 'like', '%' . $request->input('filters.global.value') . '%')
+                ->orWhere('item_name', 'like', '%' . $request->input('filters.global.value') . '%');
         }
 
-        // Mendapatkan data dengan pagination dan pengurutan
-        $data = SemiFinishedGood::orderBy($sortBy, $sortDirection)->paginate($perPage, ['*'], 'page', $currentPage);
+        // Apply specific filters
+        if ($request->has('filters.item_code.value')) {
+            $query->where('item_code', 'like', $request->input('filters.item_code.value') . '%');
+        }
+
+        if ($request->has('filters.item_name.value')) {
+            $query->where('item_name', 'like', $request->input('filters.item_name.value') . '%');
+        }
+
+        // Pagination
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
+
+        $results = $query->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([
-            'data' => $data->items(),
-            'total' => $data->total(),
-            'per_page' => $data->perPage(),
-            'current_page' => $data->currentPage(),
-            'last_page' => $data->lastPage(),
-            'from' => $data->firstItem(),
-            'to' => $data->lastItem()
+            'data' => $results->items(),
+            'total' => $results->total(),
+            'per_page' => $results->perPage(),
+            'current_page' => $results->currentPage(),
+            'from' => $results->firstItem(),
+            'last_page' => $results->lastPage()
         ]);
     }
 

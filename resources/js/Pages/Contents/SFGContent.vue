@@ -10,9 +10,27 @@
           </template>
       </Toolbar>  
       <!-- DataTable Component -->
-      <DataTable :value="items" :rows="rows">
-        <Column v-for="col in columns" :key="col.field" :field="col.field" :header="col.header" style="min-width: 12rem"></Column>
+      <DataTable v-model:filters="filters" :value="items" :rows="rows" dataKey="id" filterDisplay="row"
+              :reorderableColumns="true">
+              <!-- <Column v-for="col in columns" :key="col.field" :field="col.field" :header="col.header" style="min-width: 12rem"></Column> -->
               <Column field="id" header="ID" style="min-width: 12rem"></Column>
+              <Column field="item_code" header="Item Code" style="min-width: 12rem">
+                  <template #body="{ data }">
+                      {{ data.item_code }}
+                  </template>
+                  <template #filter="{ filterModel, filterCallback }">
+                      <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Search by code" />
+                  </template>
+              </Column>
+              <Column field="item_name" header="Item Name" style="min-width: 12rem">
+                <template #body="{ data }">
+                    {{ data.item_name }}
+                </template>
+                <template #filter="{ filterModel, filterCallback }">
+                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Search by name" />
+                </template>
+              </Column>
+              <Column field="item_spec" header="Item Spec" style="min-width: 12rem"></Column>
               <Column field="std_cost" header="Standard Cost" style="min-width: 12rem"></Column>
               <Column field="qty_pack" header="Qty Pack" style="min-width: 12rem"></Column>
               <Column field="std_wgt" header="Standard Weight" style="min-width: 12rem"></Column>
@@ -20,9 +38,6 @@
               <Column field="unit_po" header="Unit PO" style="min-width: 12rem"></Column>
               <Column field="vend_proc" header="Vendor Process" style="min-width: 12rem"></Column>
               <Column field="unit_stk" header="Unit Stock" style="min-width: 12rem"></Column>
-              <Column field="item_name" header="Item Name" style="min-width: 12rem"></Column>
-              <Column field="item_code" header="Item Code" style="min-width: 12rem"></Column>
-              <Column field="item_spec" header="Item Spec" style="min-width: 12rem"></Column>
               <Column field="brand_code" header="Brand Code" style="min-width: 12rem"></Column>
               <Column field="unit_pr" header="Unit Price" style="min-width: 12rem"></Column>
               <Column field="unit_prod" header="Unit Production" style="min-width: 12rem"></Column>
@@ -280,6 +295,7 @@
   
   <script setup>
   import { ref, onMounted, watch, computed } from 'vue';
+  import { FilterMatchMode } from '@primevue/core/api';
   import axios from 'axios';
   import Multiselect from 'vue-multiselect'
   import { useToast } from 'primevue/usetoast';
@@ -307,6 +323,16 @@
   const selectedDensity = ref({label: '', code: ''});
   const densityOptions = ref([]);
   const inventoryTypeId = 1 // id inventory type keramik
+
+  const filters = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    item_code: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    item_name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  });
+
+  watch(filters, () => {
+    fetchData(1); // Fetch data for the first page when filters change
+  }, { deep: true });
 
   const pagination = ref({
     total: 0,
@@ -442,7 +468,8 @@
       const response = await axios.get(route('sfgs.index'), {
         params: {
           page: page,
-          per_page: pagination.value.per_page
+          per_page: pagination.value.per_page,
+          filters: filters.value
         }
       });
   

@@ -12,7 +12,7 @@
       <div class="flex items-center">
         <button @click="toggleTheme" class="text-gray-500 hover:text-gray-700 focus:outline-none">
           <span v-if="isDarkMode">🌙</span>
-          <span v-else>🌞</span>
+          <span v-else>☀️</span>
         </button>
         <img class="w-8 h-8 rounded-full ml-4" src="https://via.placeholder.com/40" alt="Profile">
       </div>
