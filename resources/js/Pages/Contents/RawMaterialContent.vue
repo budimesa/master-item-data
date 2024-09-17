@@ -13,7 +13,11 @@
         <DataTable v-model:filters="filters" :value="items" :rows="rows" dataKey="id" filterDisplay="row"
               :reorderableColumns="true">
               <!-- <Column v-for="col in columns" :key="col.field" :field="col.field" :header="col.header" style="min-width: 12rem"></Column> -->
-              <Column field="id" header="ID" style="min-width: 12rem"></Column>
+              <Column header="No." style="min-width: 4rem">
+                  <template #body="{ index }">
+                      {{ pagination.offset + index + 1 }}
+                  </template>
+              </Column>
               <Column field="item_code" header="Item Code" style="min-width: 12rem">
                   <template #body="{ data }">
                       {{ data.item_code }}
@@ -255,6 +259,8 @@
   import axios from 'axios';
   import Multiselect from 'vue-multiselect'
   import { useToast } from 'primevue/usetoast';
+  import { debounce } from 'lodash';
+
   
   const items = ref([]);
   const item = ref({});
@@ -273,15 +279,23 @@
     item_name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
   });
 
-  watch(filters, () => {
+  // Create a debounced function for filtering
+  const debouncedFilter = debounce((filters) => {
     fetchData(1); // Fetch data for the first page when filters change
-  }, { deep: true });
+  }, 300); // Adjust the delay as needed
+
+  // // Watch for changes in filters and call the debounced function
+  watch(filters, (newFilters) => {
+    debouncedFilter(newFilters);
+  }, { deep: true });  
+  
   const pagination = ref({
     total: 0,
     per_page: 10,
     current_page: 1,
     from: 1,
-    last: 0
+    last: 0,
+    offset: 0, 
   });
 
   // Fungsi untuk memproses item_code
@@ -388,7 +402,8 @@
         per_page: response.data.per_page,
         current_page: response.data.current_page,
         from: response.data.from,
-        last: response.data.last_page
+        last: response.data.last_page,
+        offset: response.data.offset,
       };
   
       totalRecords.value = response.data.total;

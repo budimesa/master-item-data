@@ -31,7 +31,7 @@ class RawMaterialController extends Controller
         // Pagination
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
-
+        $offset = ($page - 1) * $perPage;
         $results = $query->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([
@@ -40,7 +40,8 @@ class RawMaterialController extends Controller
             'per_page' => $results->perPage(),
             'current_page' => $results->currentPage(),
             'from' => $results->firstItem(),
-            'last_page' => $results->lastPage()
+            'last_page' => $results->lastPage(),
+            'offset' => $offset
         ]);
     }
 

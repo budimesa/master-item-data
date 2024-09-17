@@ -27,10 +27,9 @@ class SFGController extends Controller
             $query->where('item_name', 'like', $request->input('filters.item_name.value') . '%');
         }
 
-        // Pagination
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
-
+        $offset = ($page - 1) * $perPage;
         $results = $query->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([
@@ -39,7 +38,8 @@ class SFGController extends Controller
             'per_page' => $results->perPage(),
             'current_page' => $results->currentPage(),
             'from' => $results->firstItem(),
-            'last_page' => $results->lastPage()
+            'last_page' => $results->lastPage(),
+            'offset' => $offset
         ]);
     }
 
