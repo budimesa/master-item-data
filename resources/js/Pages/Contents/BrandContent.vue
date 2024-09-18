@@ -77,7 +77,7 @@
 
       <template #footer>
         <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
-        <Button label="Save" icon="pi pi-check" @click="save" />
+        <Button label="Save" icon="pi pi-check" @click="save" :disabled="isSaving" />
       </template>
     </Dialog>
 
@@ -140,6 +140,7 @@ const filters = ref({
 });
 const submitted = ref(false);
 const isEditMode = ref(false);
+const isSaving = ref(false);
 
 const openNew = () => {
     item.value = { brand_name: '', brand_code: '' };
@@ -153,8 +154,8 @@ const hideDialog = () => {
 };
 const save = async () => {
   submitted.value = true;
-  
   if (item.value.brand_name.trim() && item.value.brand_code.trim()) {
+    isSaving.value = true; // Set to true before starting the process
     try {
       if (isEditMode.value) {
         await axios.put(route('brands.update', item.value.id), {
@@ -174,6 +175,8 @@ const save = async () => {
     } catch (error) {
       console.error('Error saving brand:', error.response.data);
       toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save brand', life: 3000 });
+    } finally {
+      isSaving.value = false; // Set to false after the process is complete
     }
   }
 };

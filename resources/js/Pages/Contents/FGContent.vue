@@ -77,27 +77,29 @@
       ></Paginator>
     </div>
 
-    <Dialog v-model:visible="formDialog" modal header="FG Details" :modal="true" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <Dialog v-model:visible="formDialog" modal header="Finished Goods Details" :modal="true" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <div class="grid grid-cols-12 gap-4 mt-1">
       <!-- Row 1 -->
-      <div class="col-span-4">
+      <div class="col-span-8">
           <div class="flex items-center">
-            <label class="w-32 font-semibold">Item Code</label>
+            <label class="w-32 font-semibold">Inventory Type</label>
             <div class="flex-1">
-              <InputText v-model.trim="item.item_code" class="w-full" required @blur="validateAndProcessInput" fluid/>
+              <multiselect
+                class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
+                v-model="selectedInventoryType"
+                :options="inventoryTypeOptions"
+                :searchable="true"
+                :closeOnSelect="true"
+                :clearOnSelect="true"
+                placeholder=""
+                label="label"
+                track-by="id"
+              />
             </div>
           </div>
-          <small v-if="submitted && !item.item_code" class="text-red-500 block mt-1 ml-32">Item Code is required.</small>
+          <small v-if="submitted && !item.inventory_type_id" class="text-red-500 block mt-1 ml-32">Inventory Type is required.</small>
       </div>
       <div class="col-span-4">
-          <div class="flex items-center">
-            <label class="w-32 font-semibold">Unit STK</label>
-            <div class="flex-1">
-              <InputText v-model.trim="item.unit_stk" class="w-full" disabled/>
-            </div>
-          </div>
-      </div>
-      <div class="col-span-2">
           <div class="flex items-center">
             <label class="w-32 font-semibold">Level Code</label>
             <div class="flex-1">
@@ -105,6 +107,23 @@
             </div>
           </div>
       </div>
+      <div class="col-span-8">
+          <div class="flex items-center">
+            <label class="w-32 font-semibold">Item Code</label>
+            <div class="flex-1">
+              <InputText v-model.trim="item.item_code" class="w-full" required @blur="validateAndProcessInput" fluid/>
+            </div>
+          </div>
+          <small v-if="submitted && !item.item_code" class="text-red-500 block mt-1 ml-32">Item Code is required.</small>
+      </div>      
+      <div class="col-span-2">
+          <div class="flex items-center">
+            <label class="w-32 font-semibold">Unit STK</label>
+            <div class="flex-1">
+              <InputText v-model.trim="item.unit_stk" class="w-full" disabled/>
+            </div>
+          </div>
+      </div>      
       <div class="col-span-2">
           <div class="flex items-center">
             <label class="w-32 font-semibold">Unit Prod</label>
@@ -347,6 +366,8 @@
   const submitted = ref(false);
   const isEditMode = ref(false);
   const toast = useToast();
+  const selectedInventoryType = ref({label: '', code: ''});
+  const inventoryTypeOptions = ref([]);
   const selectedSeriesType = ref({label: '', code: ''});
   const seriesTypeOptions = ref([]);
   const selectedBrand = ref({label: '', code: ''});
@@ -393,23 +414,23 @@
       qty_pack: 0,
       std_wgt: 0,
       size_code: '',
-      unit_po: 'KG',
+      unit_po: 'BOX',
       price_type: '',
       vendor_proc: '',
-      unit_stk: 'KG',
+      unit_stk: 'BOX',
       item_name: '',
       item_code: '',
       item_spec: '',
       item_grade: '',
       item_grade_name: '',
       brand_code: '',
-      unit_pr: 'KG',
+      unit_pr: 'BOX',
       item_order_code: '',
-      unit_prod: 'KG',
+      unit_prod: 'BOX',
       series_type: '',
-      unit_sales: 'KG',
+      unit_sales: 'BOX',
       phanton: 'Y',
-      unit_usg: 'KG',
+      unit_usg: 'BOX',
       color_code: '',
       color_tol_code: '',
       size_tol_code: '',
@@ -418,6 +439,7 @@
       level_code: 'N',
       kw_1_xx_percentage: 0,
     };
+    selectedInventoryType.value = {label: '', code: ''};
     selectedSeriesType.value = {label: '', code: ''};
     selectedBrand.value = {label: '', code: ''};
     selectedSize.value = {label: '', code: ''};
@@ -428,6 +450,7 @@
     submitted.value = false;
     isEditMode.value = false;
     formDialog.value = true;
+    fetchInventoryTypes()
     fetchSeriesTypes(inventoryTypeId);
     fetchBrands();
     fetchSizes();
@@ -436,6 +459,18 @@
     fetchColorTols();
     fetchSizeTols();
   };
+
+  const fetchInventoryTypes = async () => {
+    try {
+      const response = await axios.get(route('inventory-types.index'));
+      inventoryTypeOptions.value = response.data.inventoryTypes.map(inventoryType => ({
+        label: (inventoryType.inventory_type_name.trimEnd()), // Untuk display di dropdown
+        id: inventoryType.id
+      }));
+    } catch (error) {
+      console.error('Failed to fetch inventory types:', error);
+    }
+  }
   const fetchSeriesTypes = async () => {
      try {
         const response = await axios.get(route('series-types-by-inventory-type'), {
@@ -584,6 +619,7 @@
             color_tol_code: selectedColorTol.value.code.toString(),
             density_code: selectedDensity.value.code.toString(),
             size_tol_code: selectedSizeTol.value.code.toString(),
+            inventory_type_id: selectedInventoryType.value.id.toString()
           });
           toast.add({ severity: 'success', summary: 'Success', detail: 'FG updated successfully', life: 3000 });
         } else {
@@ -596,6 +632,7 @@
             color_tol_code: selectedColorTol.value.code.toString(),
             density_code: selectedDensity.value.code.toString(),
             size_tol_code: selectedSizeTol.value.code.toString(),
+            inventory_type_id: selectedInventoryType.value.id.toString()
           });
           toast.add({ severity: 'success', summary: 'Success', detail: 'FG created successfully', life: 3000 });
         }
@@ -611,6 +648,15 @@
   const edit = async (FGData) => {
     await fetchSeriesTypes(inventoryTypeId);
     item.value = { ...FGData };
+    await fetchInventoryTypes();
+    if (item.value.inventory_type_id === '' || item.value.inventory_type_id === null) {
+      selectedInventoryType.value = { label: '', id: '' };
+    } else {
+      const selectedOption = inventoryTypeOptions.value.find(option => option.id === item.value.inventory_type_id);
+      if (selectedOption) {
+        selectedInventoryType.value = selectedOption;
+      }
+    }
     item.value.item_grade_name = getItemGradeName(item.value.item_code);
     // Check if series_type is empty or not
     if (item.value.series_type === '' || item.value.series_type === null) {
@@ -618,7 +664,7 @@
     } else {
       const selectedOption = seriesTypeOptions.value.find(option => option.code.trim() === item.value.series_type.trim());
       if (selectedOption) {
-        selectedSeriesType.value = selectedOption;
+        selectedSeriesType.value = selectedOption;        
       }
     }
 

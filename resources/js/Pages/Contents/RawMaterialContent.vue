@@ -94,20 +94,20 @@
       </div>
       <div class="col-span-4">
           <div class="flex items-center">
-            <label class="w-32 font-semibold">Unit STK</label>
-            <div class="flex-1">
-              <InputText v-model.trim="item.unit_stk" class="w-full" disabled/>
-            </div>
-          </div>
-      </div>
-      <div class="col-span-2">
-          <div class="flex items-center">
             <label class="w-32 font-semibold">Level Code</label>
             <div class="flex-1">
               <InputText v-model.trim="item.level_code" class="w-full" disabled />
             </div>
           </div>
       </div>
+      <div class="col-span-2">
+          <div class="flex items-center">
+            <label class="w-32 font-semibold">Unit STK</label>
+            <div class="flex-1">
+              <InputText v-model.trim="item.unit_stk" class="w-full" disabled/>
+            </div>
+          </div>
+      </div>      
       <div class="col-span-2">
           <div class="flex items-center">
             <label class="w-32 font-semibold">Unit Prod</label>
@@ -463,7 +463,7 @@
     if (item.value.series_type === '' || item.value.series_type === null) {
       selectedSeriesType.value = { label: '', code: '' };
     } else {
-      const selectedOption = seriesTypeOptions.value.find(option => option.code.trim() === item.value.series_type.trim());
+      const selectedOption = seriesTypeOptions.value.find(option => option.code.trim() === item.value.series_type ? item.value.series_type.trim() : '');
       if (selectedOption) {
         selectedSeriesType.value = selectedOption;
       }

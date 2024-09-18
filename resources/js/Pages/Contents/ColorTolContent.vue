@@ -64,7 +64,7 @@
 
       <template #footer>
         <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
-        <Button label="Save" icon="pi pi-check" @click="save" />
+        <Button label="Save" icon="pi pi-check" @click="save" :disabled="isSaving" />
       </template>
     </Dialog>
 
@@ -127,6 +127,7 @@ const filters = ref({
 });
 const submitted = ref(false);
 const isEditMode = ref(false);
+const isSaving = ref(false);
 
 const openNew = () => {
     item.value = { color_tol_name: '', color_tol_code: '' };
@@ -142,6 +143,7 @@ const save = async () => {
   submitted.value = true;
   
   if (item.value.color_tol_name.trim() && item.value.color_tol_code.trim()) {
+    isSaving.value = true;
     try {
       if (isEditMode.value) {
         await axios.put(route('color-tols.update', item.value.id), {
@@ -161,6 +163,8 @@ const save = async () => {
     } catch (error) {
       console.error('Error saving Color Tol:', error.response.data);
       toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save Color Tol', life: 3000 });
+    } finally {
+      isSaving.value = false; // Set to false after the process is complete
     }
   }
 };

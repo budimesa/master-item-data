@@ -64,7 +64,7 @@
 
       <template #footer>
         <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
-        <Button label="Save" icon="pi pi-check" @click="save" />
+        <Button label="Save" icon="pi pi-check" @click="save" :disabled="isSaving" />
       </template>
     </Dialog>
 
@@ -127,6 +127,7 @@ const filters = ref({
 });
 const submitted = ref(false);
 const isEditMode = ref(false);
+const isSaving = ref(false);
 
 const openNew = () => {
     item.value = { density_name: '', density_code: '' };
@@ -142,6 +143,7 @@ const save = async () => {
   submitted.value = true;
   
   if (item.value.density_name.trim() && item.value.density_code.trim()) {
+    isSaving.value = true;
     try {
       if (isEditMode.value) {
         await axios.put(route('densities.update', item.value.id), {
@@ -161,6 +163,8 @@ const save = async () => {
     } catch (error) {
       console.error('Error saving density:', error.response.data);
       toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save density', life: 3000 });
+    } finally {
+      isSaving.value = false; // Set to false after the process is complete
     }
   }
 };

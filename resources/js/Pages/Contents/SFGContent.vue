@@ -75,14 +75,13 @@
       ></Paginator>
     </div>
 
-    <Dialog v-model:visible="formDialog" modal header="SFG Details" :modal="true" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <Dialog v-model:visible="formDialog" modal header="Semi Finished Goods Details" :modal="true" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <div class="grid grid-cols-12 gap-4 mt-1">
       <!-- Row 1 -->
-      <div class="col-span-12">
+      <div class="col-span-8">
           <div class="flex items-center">
             <label class="w-32 font-semibold">Inventory Type</label>
-            <div class="flex-1">
-              <!-- <InputText v-model.trim="item.inventory_type" class="w-full" required autofocus :invalid="submitted && !item.inventory_type" fluid/> -->
+            <div class="flex-1">              
               <multiselect
                 class="flex-1 w-full md:w-56 custom-multiselect border border-surface-300 dark:border-surface-700 rounded-md bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200"
                 v-model="selectedInventoryType"
@@ -96,26 +95,9 @@
               />
             </div>
           </div>
-          <small v-if="submitted && !item.inventory_type" class="text-red-500 block mt-1 ml-32">Item Code is required.</small>
+          <small v-if="submitted && !item.inventory_type_id" class="text-red-500 block mt-1 ml-32">Inventory Type is required.</small>
       </div>
       <div class="col-span-4">
-          <div class="flex items-center">
-            <label class="w-32 font-semibold">Item Code</label>
-            <div class="flex-1">
-              <InputText v-model.trim="item.item_code" class="w-full" required autofocus :invalid="submitted && !item.item_code" fluid/>
-            </div>
-          </div>
-          <small v-if="submitted && !item.item_code" class="text-red-500 block mt-1 ml-32">Item Code is required.</small>
-      </div>
-      <div class="col-span-4">
-          <div class="flex items-center">
-            <label class="w-32 font-semibold">Unit STK</label>
-            <div class="flex-1">
-              <InputText v-model.trim="item.unit_stk" class="w-full" disabled/>
-            </div>
-          </div>
-      </div>
-      <div class="col-span-2">
           <div class="flex items-center">
             <label class="w-32 font-semibold">Level Code</label>
             <div class="flex-1">
@@ -123,6 +105,24 @@
             </div>
           </div>
       </div>
+      <div class="col-span-8">
+          <div class="flex items-center">
+            <label class="w-32 font-semibold">Item Code</label>
+            <div class="flex-1">
+              <InputText v-model.trim="item.item_code" class="w-full" required fluid/>
+            </div>
+          </div>
+          <small v-if="submitted && !item.item_code" class="text-red-500 block mt-1 ml-32">Item Code is required.</small>
+      </div>
+      <div class="col-span-2">
+          <div class="flex items-center">
+            <label class="w-32 font-semibold">Unit STK</label>
+            <div class="flex-1">
+              <InputText v-model.trim="item.unit_stk" class="w-full" disabled/>
+            </div>
+          </div>
+      </div>
+      
       <div class="col-span-2">
           <div class="flex items-center">
             <label class="w-32 font-semibold">Unit Prod</label>
@@ -137,7 +137,7 @@
           <div class="flex items-center">
             <label class="w-32 font-semibold">Item Spec</label>
             <div class="flex-1">
-              <InputText v-model.trim="item.item_spec" class="w-full" required autofocus :invalid="submitted && !item.item_spec" fluid/>
+              <InputText v-model.trim="item.item_spec" class="w-full" required fluid/>
             </div>
           </div>
           <small v-if="submitted && !item.item_spec" class="text-red-500 block mt-1 ml-32">Item Spec is required.</small>
@@ -359,27 +359,28 @@
       qty_pack: 0,
       std_wgt: 0,
       size_code: '',
-      unit_po: 'KG',
+      unit_po: 'BOX',
       vendor_proc: '',
-      unit_stk: 'KG',
+      unit_stk: 'BOX',
       item_name: '',
       item_code: '',
       item_spec: '',
       brand_code: '',
-      unit_pr: 'KG',
+      unit_pr: 'BOX',
       item_order_code: '',
-      unit_prod: 'KG',
+      unit_prod: 'BOX',
       series_type: '',
-      unit_sales: 'KG',
+      unit_sales: 'BOX',
       phanton: 'Y',
-      unit_usg: 'KG',
+      unit_usg: 'PCS',
       color_code: '',
       density_code: '',
       business_type: '',
-      level_code: 'N',
+      level_code: 'M',
       plus_minus_percentage: 0,
       kw_1_xx_percentage: 0,
     };
+    selectedInventoryType.value = {label: '', code: ''};
     selectedSeriesType.value = {label: '', code: ''};
     selectedBrand.value = {label: '', code: ''};
     selectedSize.value = {label: '', code: ''};
@@ -406,7 +407,7 @@
     } catch (error) {
       console.error('Failed to fetch inventory types:', error);
     }
-}
+  }
   const fetchSeriesTypes = async () => {
       try {
         const response = await axios.get(route('series-types-by-inventory-type'), {
@@ -527,6 +528,7 @@
             size_code: selectedSize.value.code.toString(),
             color_code: selectedColor.value.code.toString(),
             density_code: selectedDensity.value.code.toString(),
+            inventory_type_id: selectedInventoryType.value.id.toString()
           });
           toast.add({ severity: 'success', summary: 'Success', detail: 'SFG updated successfully', life: 3000 });
         } else {
@@ -537,6 +539,7 @@
             size_code: selectedSize.value.code.toString(),
             color_code: selectedColor.value.code.toString(),
             density_code: selectedDensity.value.code.toString(),
+            inventory_type_id: selectedInventoryType.value.id.toString()
           });
           toast.add({ severity: 'success', summary: 'Success', detail: 'SFG created successfully', life: 3000 });
         }
@@ -551,8 +554,9 @@
   };
 
 
-  const edit = async (SFGData) => {
+  const edit = async (SFGData) => {    
     await fetchInventoryTypes();
+    item.value = { ...SFGData };
     if (item.value.inventory_type_id === '' || item.value.inventory_type_id === null) {
       selectedInventoryType.value = { label: '', id: '' };
     } else {
@@ -563,12 +567,11 @@
     }
 
     await fetchSeriesTypes(inventoryTypeId);
-    item.value = { ...SFGData };
     // Check if series_type is empty or not
     if (item.value.series_type === '' || item.value.series_type === null) {
       selectedSeriesType.value = { label: '', code: '' };
     } else {
-      const selectedOption = seriesTypeOptions.value.find(option => option.code.trim() === item.value.series_type.trim());
+      const selectedOption = seriesTypeOptions.value.find(option => option.code.trim() === item.value.series_type ? item.value.series_type.trim() : '');
       if (selectedOption) {
         selectedSeriesType.value = selectedOption;
       }
@@ -578,7 +581,7 @@
     if (item.value.brand === '' || item.value.brand === null) {
       selectedBrand.value = { label: '', code: '' };
     } else {
-      const selectedOption = brandOptions.value.find(option => option.code.trim() === item.value.brand_code.trim());
+      const selectedOption = brandOptions.value.find(option => option.code.trim() === item.value.brand_code ? item.value.brand_code.trim() : '');
       if (selectedOption) {
         selectedBrand.value = selectedOption;
       }
@@ -588,7 +591,7 @@
     if (item.value.size === '' || item.value.size === null) {
       selectedSize.value = { label: '', code: '' };
     } else {
-      const selectedOption = sizeOptions.value.find(option => option.code.trim() === item.value.size_code.trim());
+      const selectedOption = sizeOptions.value.find(option => option.code.trim() === item.value.size_code ? item.value.size_code.trim() : '');
       if (selectedOption) {
         selectedSize.value = selectedOption;
       }
@@ -597,7 +600,7 @@
     if (item.value.color === '' || item.value.color === null) {
       selectedColor.value = { label: '', code: '' };
     } else {
-      const selectedOption = colorOptions.value.find(option => option.code.trim() === item.value.color_code.trim());
+      const selectedOption = colorOptions.value.find(option => option.code.trim() === item.value.color_code ? item.value.color_code.trim() : '');
       if (selectedOption) {
         selectedColor.value = selectedOption;
       }
@@ -606,7 +609,7 @@
     if (item.value.density === '' || item.value.density === null) {
       selectedDensity.value = { label: '', code: '' };
     } else {
-      const selectedOption = densityOptions.value.find(option => option.code.trim() === item.value.density_code.trim());
+      const selectedOption = densityOptions.value.find(option => option.code.trim() === item.value.density_code ? item.value.density_code.trim() : '');
       if (selectedOption) {
         selectedDensity.value = selectedOption;
       }

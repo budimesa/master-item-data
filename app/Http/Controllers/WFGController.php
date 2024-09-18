@@ -26,7 +26,7 @@ class WFGController extends Controller
         if ($request->has('filters.item_name.value')) {
             $query->where('item_name', 'like', $request->input('filters.item_name.value') . '%');
         }
-
+        $query->orderBy('created_at', 'desc'); // Ganti 'created_at' dengan kolom yang sesuai
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $offset = ($page - 1) * $perPage;
@@ -49,28 +49,28 @@ class WFGController extends Controller
             'std_cost' => 'numeric',
             'qty_pack' => 'numeric',
             'std_wgt' => 'numeric',
-            'size_code' => 'string',
+            'size_code' => 'string|nullable',
             'unit_po' => 'string',
             'vend_proc' => 'nullable',
             'unit_stk' => 'string',
-            'item_name' => 'required|string',
+            'item_name' => 'nullable|string',
             'item_code' => 'string',
             'item_spec' => 'required|string',
-            'brand_code' => 'string',
+            'brand_code' => 'string|nullable',
             'unit_pr' => 'string',            
             'item_order_code' => 'nullable',
             'unit_prod' => 'string',
-            'series_type' => 'nullable|string',
+            'series_type' => 'nullable|string',            
             'unit_sales' => 'string',
             'phanton' => 'string',
             'unit_usg' => 'string',
             'business_type' => 'nullable',
-            'color_code' => 'string',
-            'density_code' => 'string',
+            'color_code' => 'string|nullable',
+            'density_code' => 'string|nullable',
             'level_code' => 'string',            
             'plus_minus_percentage' => 'numeric',
             'fixed_lot' => 'numeric',
-            
+            'inventory_type_id' => 'nullable',
         ]);
 
         $data['created_by'] = Auth::id(); // Ambil ID pengguna yang sedang login
@@ -89,27 +89,28 @@ class WFGController extends Controller
             'std_cost' => 'numeric',
             'qty_pack' => 'numeric',
             'std_wgt' => 'numeric',
-            'size_code' => 'string',
+            'size_code' => 'string|nullable',
             'unit_po' => 'string',
             'vend_proc' => 'nullable',
             'unit_stk' => 'string',
-            'item_name' => 'required|string',
+            'item_name' => 'nullable|string',
             'item_code' => 'string',
             'item_spec' => 'required|string',
-            'brand_code' => 'string',
+            'brand_code' => 'string|nullable',
             'unit_pr' => 'string',            
             'item_order_code' => 'nullable',
             'unit_prod' => 'string',
-            'series_type' => 'nullable|string',
+            'series_type' => 'nullable|string',            
             'unit_sales' => 'string',
             'phanton' => 'string',
             'unit_usg' => 'string',
             'business_type' => 'nullable',
-            'color_code' => 'string',
-            'density_code' => 'string',
+            'color_code' => 'string|nullable',
+            'density_code' => 'string|nullable',
             'level_code' => 'string',            
             'plus_minus_percentage' => 'numeric',
             'fixed_lot' => 'numeric',
+            'inventory_type_id' => 'nullable',
         ]);
 
         $data['updated_by'] = Auth::id(); // Ambil ID pengguna yang sedang login

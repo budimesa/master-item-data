@@ -26,8 +26,7 @@ class FGController extends Controller
         if ($request->has('filters.item_name.value')) {
             $query->where('item_name', 'like', $request->input('filters.item_name.value') . '%');
         }
-
-        // Pagination
+        $query->orderBy('created_at', 'desc'); // Ganti 'created_at' dengan kolom yang sesuai
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $offset = ($page - 1) * $perPage;
@@ -76,7 +75,8 @@ class FGController extends Controller
             'busines_type' => 'nullable',
             'size_tol_code' => 'nullable',
             'level_code' => 'string',            
-            'kw_1_xx_percentage' => 'numeric',            
+            'kw_1_xx_percentage' => 'numeric',
+            'inventory_type_id' => 'nullable',         
         ]);
 
         $data['created_by'] = Auth::id(); // Ambil ID pengguna yang sedang login
@@ -121,6 +121,7 @@ class FGController extends Controller
             'size_tol_code' => 'nullable',
             'level_code' => 'string',            
             'kw_1_xx_percentage' => 'numeric',
+            'inventory_type_id' => 'nullable',
         ]);
 
         $data['updated_by'] = Auth::id(); // Ambil ID pengguna yang sedang login

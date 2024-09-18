@@ -27,9 +27,10 @@ class SFGController extends Controller
             $query->where('item_name', 'like', $request->input('filters.item_name.value') . '%');
         }
 
+        $query->orderBy('created_at', 'desc'); // Ganti 'created_at' dengan kolom yang sesuai
+
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
-        $offset = ($page - 1) * $perPage;
         $results = $query->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([
@@ -39,7 +40,6 @@ class SFGController extends Controller
             'current_page' => $results->currentPage(),
             'from' => $results->firstItem(),
             'last_page' => $results->lastPage(),
-            'offset' => $offset
         ]);
     }
 
@@ -49,14 +49,14 @@ class SFGController extends Controller
             'std_cost' => 'numeric',
             'qty_pack' => 'numeric',
             'std_wgt' => 'numeric',
-            'size_code' => 'string',
+            'size_code' => 'nullable',
             'unit_po' => 'string',
             'vend_proc' => 'nullable',
             'unit_stk' => 'string',
-            'item_name' => 'required|string',
+            'item_name' => 'nullable|string',
             'item_code' => 'string',
             'item_spec' => 'required|string',
-            'brand_code' => 'string',
+            'brand_code' => 'nullable',
             'unit_pr' => 'string',            
             'item_order_code' => 'nullable',
             'unit_prod' => 'string',
@@ -65,10 +65,11 @@ class SFGController extends Controller
             'phanton' => 'string',
             'unit_usg' => 'string',
             'business_type' => 'nullable',
-            'color_code' => 'string',
-            'density_code' => 'string',
+            'color_code' => 'nullable',
+            'density_code' => 'nullable',
             'level_code' => 'string',            
-            'plus_minus_percentage' => 'numeric',            
+            'plus_minus_percentage' => 'numeric',
+            'inventory_type_id' => 'nullable',      
         ]);
 
         $data['created_by'] = Auth::id(); // Ambil ID pengguna yang sedang login
@@ -87,14 +88,14 @@ class SFGController extends Controller
             'std_cost' => 'numeric',
             'qty_pack' => 'numeric',
             'std_wgt' => 'numeric',
-            'size_code' => 'string',
+            'size_code' => 'nullable',
             'unit_po' => 'string',
             'vend_proc' => 'nullable',
             'unit_stk' => 'string',
-            'item_name' => 'required|string',
+            'item_name' => 'nullable|string',
             'item_code' => 'string',
             'item_spec' => 'required|string',
-            'brand_code' => 'string',
+            'brand_code' => 'nullable',
             'unit_pr' => 'string',            
             'item_order_code' => 'nullable',
             'unit_prod' => 'string',
@@ -103,10 +104,11 @@ class SFGController extends Controller
             'phanton' => 'string',
             'unit_usg' => 'string',
             'business_type' => 'nullable',
-            'color_code' => 'string',
-            'density_code' => 'string',
+            'color_code' => 'nullable',
+            'density_code' => 'nullable',
             'level_code' => 'string',            
             'plus_minus_percentage' => 'numeric',
+            'inventory_type_id' => 'nullable',
         ]);
 
         $data['updated_by'] = Auth::id(); // Ambil ID pengguna yang sedang login

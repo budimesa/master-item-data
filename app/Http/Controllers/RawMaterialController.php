@@ -28,7 +28,7 @@ class RawMaterialController extends Controller
             $query->where('item_name', 'like', $request->input('filters.item_name.value') . '%');
         }
 
-        // Pagination
+        $query->orderBy('created_at', 'desc'); // Ganti 'created_at' dengan kolom yang sesuai
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $offset = ($page - 1) * $perPage;
