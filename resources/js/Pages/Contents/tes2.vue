@@ -1,398 +1,202 @@
-<?php
 
-namespace Illuminate\Foundation\Console;
+<template>
+    <div class="card">
+        <DataTable v-model:filters="filters" :value="customers" paginator showGridlines :rows="10" dataKey="id"
+                filterDisplay="menu" :loading="loading" :globalFilterFields="['name', 'country.name', 'representative.name', 'balance', 'status']">
+            <template #header>
+                <div class="flex justify-between">
+                    <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined @click="clearFilter()" />
+                    <IconField>
+                        <InputIcon>
+                            <i class="pi pi-search" />
+                        </InputIcon>
+                        <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
+                    </IconField>
+                </div>
+            </template>
+            <template #empty> No customers found. </template>
+            <template #loading> Loading customers data. Please wait. </template>
+            <Column field="name" header="Name" style="min-width: 12rem">
+                <template #body="{ data }">
+                    {{ data.name }}
+                </template>
+                <template #filter="{ filterModel }">
+                    <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+                </template>
+            </Column>
+            <Column header="Country" filterField="country.name" style="min-width: 12rem">
+                <template #body="{ data }">
+                    <div class="flex items-center gap-2">
+                        <img alt="flag" src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png" :class="`flag flag-${data.country.code}`" style="width: 24px" />
+                        <span>{{ data.country.name }}</span>
+                    </div>
+                </template>
+                <template #filter="{ filterModel }">
+                    <InputText v-model="filterModel.value" type="text" placeholder="Search by country" />
+                </template>
+                <template #filterclear="{ filterCallback }">
+                    <Button type="button" icon="pi pi-times" @click="filterCallback()" severity="secondary"></Button>
+                </template>
+                <template #filterapply="{ filterCallback }">
+                    <Button type="button" icon="pi pi-check" @click="filterCallback()" severity="success"></Button>
+                </template>
+                <template #filterfooter>
+                    <div class="px-4 pt-0 pb-4 text-center">Customized Buttons</div>
+                </template>
+            </Column>
+            <Column header="Agent" filterField="representative" :showFilterMatchModes="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
+                <template #body="{ data }">
+                    <div class="flex items-center gap-2">
+                        <img :alt="data.representative.name" :src="`https://primefaces.org/cdn/primevue/images/avatar/${data.representative.image}`" style="width: 32px" />
+                        <span>{{ data.representative.name }}</span>
+                    </div>
+                </template>
+                <template #filter="{ filterModel }">
+                    <MultiSelect v-model="filterModel.value" :options="representatives" optionLabel="name" placeholder="Any">
+                        <template #option="slotProps">
+                            <div class="flex items-center gap-2">
+                                <img :alt="slotProps.option.name" :src="`https://primefaces.org/cdn/primevue/images/avatar/${slotProps.option.image}`" style="width: 32px" />
+                                <span>{{ slotProps.option.name }}</span>
+                            </div>
+                        </template>
+                    </MultiSelect>
+                </template>
+            </Column>
+            <Column header="Date" filterField="date" dataType="date" style="min-width: 10rem">
+                <template #body="{ data }">
+                    {{ formatDate(data.date) }}
+                </template>
+                <template #filter="{ filterModel }">
+                    <DatePicker v-model="filterModel.value" dateFormat="mm/dd/yy" placeholder="mm/dd/yyyy" />
+                </template>
+            </Column>
+            <Column header="Balance" filterField="balance" dataType="numeric" style="min-width: 10rem">
+                <template #body="{ data }">
+                    {{ formatCurrency(data.balance) }}
+                </template>
+                <template #filter="{ filterModel }">
+                    <InputNumber v-model="filterModel.value" mode="currency" currency="USD" locale="en-US" />
+                </template>
+            </Column>
+            <Column header="Status" field="status" :filterMenuStyle="{ width: '14rem' }" style="min-width: 12rem">
+                <template #body="{ data }">
+                    <Tag :value="data.status" :severity="getSeverity(data.status)" />
+                </template>
+                <template #filter="{ filterModel }">
+                    <Select v-model="filterModel.value" :options="statuses" placeholder="Select One" showClear>
+                        <template #option="slotProps">
+                            <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
+                        </template>
+                    </Select>
+                </template>
+            </Column>
+            <Column field="activity" header="Activity" :showFilterMatchModes="false" style="min-width: 12rem">
+                <template #body="{ data }">
+                    <ProgressBar :value="data.activity" :showValue="false" style="height: 6px"></ProgressBar>
+                </template>
+                <template #filter="{ filterModel }">
+                    <Slider v-model="filterModel.value" range class="m-4"></Slider>
+                    <div class="flex items-center justify-between px-2">
+                        <span>{{ filterModel.value ? filterModel.value[0] : 0 }}</span>
+                        <span>{{ filterModel.value ? filterModel.value[1] : 100 }}</span>
+                    </div>
+                </template>
+            </Column>
+            <Column field="verified" header="Verified" dataType="boolean" bodyClass="text-center" style="min-width: 8rem">
+                <template #body="{ data }">
+                    <i class="pi" :class="{ 'pi-check-circle text-green-500 ': data.verified, 'pi-times-circle text-red-500': !data.verified }"></i>
+                </template>
+                <template #filter="{ filterModel }">
+                    <label for="verified-filter" class="font-bold"> Verified </label>
+                    <Checkbox v-model="filterModel.value" :indeterminate="filterModel.value === null" binary inputId="verified-filter" />
+                </template>
+            </Column>
+        </DataTable>
+    </div>
+</template>
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Env;
-use Illuminate\Support\InteractsWithTime;
-use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Process\PhpExecutableFinder;
-use Symfony\Component\Process\Process;
+<script setup>
+import { ref, onMounted } from 'vue';
+import { CustomerService } from '@/service/CustomerService';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 
-use function Termwind\terminal;
+const customers = ref();
+const filters = ref();
+const representatives = ref([
+    { name: 'Amy Elsner', image: 'amyelsner.png' },
+    { name: 'Anna Fali', image: 'annafali.png' },
+    { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
+    { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
+    { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
+    { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
+    { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
+    { name: 'Onyama Limba', image: 'onyamalimba.png' },
+    { name: 'Stephen Shaw', image: 'stephenshaw.png' },
+    { name: 'XuXue Feng', image: 'xuxuefeng.png' }
+]);
+const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
+const loading = ref(true);
 
-#[AsCommand(name: 'serve')]
-class ServeCommand extends Command
-{
-    use InteractsWithTime;
+onMounted(() => {
+    CustomerService.getCustomersMedium().then((data) => {
+        customers.value = getCustomers(data);
+        loading.value = false;
+    });
+});
 
-    /**
-     * The console command name.
-     *
-     * @var string
-     */
-    protected $name = 'serve';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Serve the application on the PHP development server';
+const initFilters = () => {
+    filters.value = {
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+        'country.name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+        representative: { value: null, matchMode: FilterMatchMode.IN },
+        date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
+        balance: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        activity: { value: [0, 100], matchMode: FilterMatchMode.BETWEEN },
+        verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+    };
+};
 
-    /**
-     * The current port offset.
-     *
-     * @var int
-     */
-    protected $portOffset = 0;
+initFilters();
 
-    /**
-     * The list of lines that are pending to be output.
-     *
-     * @var string
-     */
-    protected $outputBuffer = '';
+const formatDate = (value) => {
+    return value.toLocaleDateString('en-US', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+};
+const formatCurrency = (value) => {
+    return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+};
+const clearFilter = () => {
+    initFilters();
+};
+const getCustomers = (data) => {
+    return [...(data || [])].map((d) => {
+        d.date = new Date(d.date);
 
-    /**
-     * The list of requests being handled and their start time.
-     *
-     * @var array<int, \Illuminate\Support\Carbon>
-     */
-    protected $requestsPool;
+        return d;
+    });
+};
+const getSeverity = (status) => {
+    switch (status) {
+        case 'unqualified':
+            return 'danger';
 
-    /**
-     * Indicates if the "Server running on..." output message has been displayed.
-     *
-     * @var bool
-     */
-    protected $serverRunningHasBeenDisplayed = false;
+        case 'qualified':
+            return 'success';
 
-    /**
-     * The environment variables that should be passed from host machine to the PHP server process.
-     *
-     * @var string[]
-     */
-    public static $passthroughVariables = [
-        'APP_ENV',
-        'HERD_PHP_81_INI_SCAN_DIR',
-        'HERD_PHP_82_INI_SCAN_DIR',
-        'HERD_PHP_83_INI_SCAN_DIR',
-        'IGNITION_LOCAL_SITES_PATH',
-        'LARAVEL_SAIL',
-        'PATH',
-        'PHP_CLI_SERVER_WORKERS',
-        'PHP_IDE_CONFIG',
-        'SYSTEMROOT',
-        'XDEBUG_CONFIG',
-        'XDEBUG_MODE',
-        'XDEBUG_SESSION',
-    ];
+        case 'new':
+            return 'info';
 
-    /**
-     * Execute the console command.
-     *
-     * @return int
-     *
-     * @throws \Exception
-     */
-    public function handle()
-    {
-        $environmentFile = $this->option('env')
-            ? base_path('.env').'.'.$this->option('env')
-            : base_path('.env');
+        case 'negotiation':
+            return 'warn';
 
-        $hasEnvironment = file_exists($environmentFile);
-
-        $environmentLastModified = $hasEnvironment
-            ? filemtime($environmentFile)
-            : now()->addDays(30)->getTimestamp();
-
-        $process = $this->startProcess($hasEnvironment);
-
-        while ($process->isRunning()) {
-            if ($hasEnvironment) {
-                clearstatcache(false, $environmentFile);
-            }
-
-            if (! $this->option('no-reload') &&
-                $hasEnvironment &&
-                filemtime($environmentFile) > $environmentLastModified) {
-                $environmentLastModified = filemtime($environmentFile);
-
-                $this->newLine();
-
-                $this->components->info('Environment modified. Restarting server...');
-
-                $process->stop(5);
-
-                $this->serverRunningHasBeenDisplayed = false;
-
-                $process = $this->startProcess($hasEnvironment);
-            }
-
-            usleep(500 * 1000);
-        }
-
-        $status = $process->getExitCode();
-
-        if ($status && $this->canTryAnotherPort()) {
-            $this->portOffset += 1;
-
-            return $this->handle();
-        }
-
-        return $status;
+        case 'renewal':
+            return null;
     }
-
-    /**
-     * Start a new server process.
-     *
-     * @param  bool  $hasEnvironment
-     * @return \Symfony\Component\Process\Process
-     */
-    protected function startProcess($hasEnvironment)
-    {
-        $process = new Process($this->serverCommand(), public_path(), collect($_ENV)->mapWithKeys(function ($value, $key) use ($hasEnvironment) {
-            if ($this->option('no-reload') || ! $hasEnvironment) {
-                return [$key => $value];
-            }
-
-            return in_array($key, static::$passthroughVariables) ? [$key => $value] : [$key => false];
-        })->all());
-
-        $this->trap(fn () => [SIGTERM, SIGINT, SIGHUP, SIGUSR1, SIGUSR2, SIGQUIT], function ($signal) use ($process) {
-            if ($process->isRunning()) {
-                $process->stop(10, $signal);
-            }
-
-            exit;
-        });
-
-        $process->start($this->handleProcessOutput());
-
-        return $process;
-    }
-
-    /**
-     * Get the full server command.
-     *
-     * @return array
-     */
-    protected function serverCommand()
-    {
-        $server = file_exists(base_path('server.php'))
-            ? base_path('server.php')
-            : __DIR__.'/../resources/server.php';
-
-        return [
-            (new PhpExecutableFinder)->find(false) ?: 'php',
-            '-S',
-            $this->host().':'.$this->port(),
-            $server,
-        ];
-    }
-
-    /**
-     * Get the host for the command.
-     *
-     * @return string
-     */
-    protected function host()
-    {
-        [$host] = $this->getHostAndPort();
-
-        return $host;
-    }
-
-    /**
-     * Get the port for the command.
-     *
-     * @return string
-     */
-    protected function port()
-    {
-        $port = $this->input->getOption('port');
-
-        if (is_null($port)) {
-            [, $port] = $this->getHostAndPort();
-        }
-
-        $port = $port ?: 8000;
-
-        return $port + $this->portOffset;
-    }
-
-    /**
-     * Get the host and port from the host option string.
-     *
-     * @return array
-     */
-    protected function getHostAndPort()
-    {
-        if (preg_match('/(\[.*\]):?([0-9]+)?/', $this->input->getOption('host'), $matches) !== false) {
-            return [
-                $matches[1] ?? $this->input->getOption('host'),
-                $matches[2] ?? null,
-            ];
-        }
-
-        $hostParts = explode(':', $this->input->getOption('host'));
-
-        return [
-            $hostParts[0],
-            $hostParts[1] ?? null,
-        ];
-    }
-
-    /**
-     * Check if the command has reached its maximum number of port tries.
-     *
-     * @return bool
-     */
-    protected function canTryAnotherPort()
-    {
-        return is_null($this->input->getOption('port')) &&
-            ($this->input->getOption('tries') > $this->portOffset);
-    }
-
-    /**
-     * Returns a "callable" to handle the process output.
-     *
-     * @return callable(string, string): void
-     */
-    protected function handleProcessOutput()
-    {
-        return function ($type, $buffer) {
-            $this->outputBuffer .= $buffer;
-
-            $this->flushOutputBuffer();
-        };
-    }
-
-    /**
-     * Flush the output buffer.
-     *
-     * @return void
-     */
-    protected function flushOutputBuffer()
-    {
-        $lines = str($this->outputBuffer)->explode("\n");
-
-        $this->outputBuffer = (string) $lines->pop();
-
-        $lines
-            ->map(fn ($line) => trim($line))
-            ->filter()
-            ->each(function ($line) {
-                if (str($line)->contains('Development Server (http')) {
-                    if ($this->serverRunningHasBeenDisplayed === false) {
-                        $this->serverRunningHasBeenDisplayed = true;
-
-                        $this->components->info("Server running on [http://{$this->host()}:{$this->port()}].");
-                        $this->comment('  <fg=yellow;options=bold>Press Ctrl+C to stop the server</>');
-
-                        $this->newLine();
-                    }
-
-                    return;
-                }
-
-                if (str($line)->contains(' Accepted')) {
-                    $requestPort = $this->getRequestPortFromLine($line);
-
-                    $this->requestsPool[$requestPort] = [
-                        $this->getDateFromLine($line),
-                        $this->requestsPool[$requestPort][1] ?? false,
-                        microtime(true),
-                    ];
-                } elseif (str($line)->contains([' [200]: GET '])) {
-                    $requestPort = $this->getRequestPortFromLine($line);
-
-                    $this->requestsPool[$requestPort][1] = trim(explode('[200]: GET', $line)[1]);
-                } elseif (str($line)->contains('URI:')) {
-                    $requestPort = $this->getRequestPortFromLine($line);
-
-                    $this->requestsPool[$requestPort][1] = trim(explode('URI: ', $line)[1]);
-                } elseif (str($line)->contains(' Closing')) {
-                    $requestPort = $this->getRequestPortFromLine($line);
-
-                    if (empty($this->requestsPool[$requestPort])) {
-                        $this->requestsPool[$requestPort] = [
-                            $this->getDateFromLine($line),
-                            false,
-                            microtime(true),
-                        ];
-                    }
-
-                    [$startDate, $file, $startMicrotime] = $this->requestsPool[$requestPort];
-
-                    $formattedStartedAt = $startDate->format('Y-m-d H:i:s');
-
-                    unset($this->requestsPool[$requestPort]);
-
-                    [$date, $time] = explode(' ', $formattedStartedAt);
-
-                    $this->output->write("  <fg=gray>$date</> $time");
-
-                    $runTime = $this->runTimeForHumans($startMicrotime);
-
-                    if ($file) {
-                        $this->output->write($file = " $file");
-                    }
-
-                    $dots = max(terminal()->width() - mb_strlen($formattedStartedAt) - mb_strlen($file) - mb_strlen($runTime) - 9, 0);
-
-                    $this->output->write(' '.str_repeat('<fg=gray>.</>', $dots));
-                    $this->output->writeln(" <fg=gray>~ {$runTime}</>");
-                } elseif (str($line)->contains(['Closed without sending a request', 'Failed to poll event'])) {
-                    // ...
-                } elseif (! empty($line)) {
-                    if (str($line)->startsWith('[')) {
-                        $line = str($line)->after('] ');
-                    }
-
-                    $this->output->writeln("  <fg=gray>$line</>");
-                }
-            });
-    }
-
-    /**
-     * Get the date from the given PHP server output.
-     *
-     * @param  string  $line
-     * @return \Illuminate\Support\Carbon
-     */
-    protected function getDateFromLine($line)
-    {
-        $regex = env('PHP_CLI_SERVER_WORKERS', 1) > 1
-            ? '/^\[\d+]\s\[([a-zA-Z0-9: ]+)\]/'
-            : '/^\[([^\]]+)\]/';
-
-        $line = str_replace('  ', ' ', $line);
-
-        preg_match($regex, $line, $matches);
-
-        return Carbon::createFromFormat('D M d H:i:s Y', $matches[1]);
-    }
-
-    /**
-     * Get the request port from the given PHP server output.
-     *
-     * @param  string  $line
-     * @return int
-     */
-    protected function getRequestPortFromLine($line)
-    {
-        preg_match('/:(\d+)\s(?:(?:\w+$)|(?:\[.*))/', $line, $matches);
-
-        return (int) $matches[1];
-    }
-
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions()
-    {
-        return [
-            ['host', null, InputOption::VALUE_OPTIONAL, 'The host address to serve the application on', Env::get('SERVER_HOST', '127.0.0.1')],
-            ['port', null, InputOption::VALUE_OPTIONAL, 'The port to serve the application on', Env::get('SERVER_PORT')],
-            ['tries', null, InputOption::VALUE_OPTIONAL, 'The max number of ports to attempt to serve from', 10],
-            ['no-reload', null, InputOption::VALUE_NONE, 'Do not reload the development server on .env file changes'],
-        ];
-    }
-}
+};
+</script>

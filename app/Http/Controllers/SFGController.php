@@ -27,8 +27,7 @@ class SFGController extends Controller
             $query->where('item_name', 'like', $request->input('filters.item_name.value') . '%');
         }
 
-        $query->orderBy('created_at', 'desc'); // Ganti 'created_at' dengan kolom yang sesuai
-
+        $query->orderBy('created_at', 'desc');
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $results = $query->paginate($perPage, ['*'], 'page', $page);

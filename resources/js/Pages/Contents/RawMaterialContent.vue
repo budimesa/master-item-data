@@ -10,7 +10,7 @@
           </template>
       </Toolbar>
       <!-- DataTable Component -->
-        <DataTable v-model:filters="filters" :value="items" :rows="rows" dataKey="id" filterDisplay="row"
+      <DataTable v-model:filters="filters" :value="items" :rows="rows" dataKey="id" filterDisplay="row"
               :reorderableColumns="true">
               <!-- <Column v-for="col in columns" :key="col.field" :field="col.field" :header="col.header" style="min-width: 12rem"></Column> -->
               <Column header="No." style="min-width: 4rem">
