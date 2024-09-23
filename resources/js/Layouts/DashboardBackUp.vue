@@ -5,7 +5,7 @@
 
     <div class="flex flex-1 overflow-hidden">
       <!-- Sidebar -->
-      <Sidebar :is-collapsed="isCollapsed" />
+      <Sidebar :is-collapsed="isSidebarCollapsed" />
 
       <!-- Main Content Area -->
       <Toast />
@@ -26,14 +26,14 @@
 
 const isDarkMode = inject('isDarkMode', ref(false));
   // State untuk mengatur apakah sidebar collapsed atau tidak
-  const isCollapsed = ref(false);
+  const isSidebarCollapsed = ref(false);
   
   function toggleSidebar() {
-    isCollapsed.value = !isCollapsed.value;
+    isSidebarCollapsed.value = !isSidebarCollapsed.value;
   }
   </script>
   
   <style scoped>
-  
+  /* No custom styles needed unless for specific adjustments */
   </style>
   

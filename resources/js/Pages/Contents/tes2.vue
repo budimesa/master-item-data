@@ -1,4 +1,3 @@
-
 <template>
     <div class="card">
         <DataTable v-model:filters="filters" :value="customers" paginator showGridlines :rows="10" dataKey="id"
@@ -67,7 +66,7 @@
                     {{ formatDate(data.date) }}
                 </template>
                 <template #filter="{ filterModel }">
-                    <DatePicker v-model="filterModel.value" dateFormat="mm/dd/yy" placeholder="mm/dd/yyyy" />
+                    <DatePicker v-model="filterModel.value" dateFormat="dd/mm/yy" placeholder="dd/mm/yyyy" />
                 </template>
             </Column>
             <Column header="Balance" filterField="balance" dataType="numeric" style="min-width: 10rem">
@@ -113,16 +112,15 @@
             </Column>
         </DataTable>
     </div>
-</template>
-
-<script setup>
-import { ref, onMounted } from 'vue';
-import { CustomerService } from '@/service/CustomerService';
-import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
-
-const customers = ref();
-const filters = ref();
-const representatives = ref([
+  </template>
+  
+  <script setup>
+  import { ref, onMounted } from 'vue';
+  import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
+  
+  const customers = ref();
+  const filters = ref();
+  const representatives = ref([
     { name: 'Amy Elsner', image: 'amyelsner.png' },
     { name: 'Anna Fali', image: 'annafali.png' },
     { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
@@ -133,19 +131,19 @@ const representatives = ref([
     { name: 'Onyama Limba', image: 'onyamalimba.png' },
     { name: 'Stephen Shaw', image: 'stephenshaw.png' },
     { name: 'XuXue Feng', image: 'xuxuefeng.png' }
-]);
-const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
-const loading = ref(true);
-
-onMounted(() => {
-    CustomerService.getCustomersMedium().then((data) => {
-        customers.value = getCustomers(data);
+  ]);
+  const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
+  const loading = ref(true);
+  
+  onMounted(() => {
+    // Simulasi pemanggilan API
+    setTimeout(() => {
+        customers.value = getCustomers(mockCustomerData);
         loading.value = false;
-    });
-});
-
-
-const initFilters = () => {
+    }, 1000);
+  });
+  
+  const initFilters = () => {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
@@ -157,46 +155,84 @@ const initFilters = () => {
         activity: { value: [0, 100], matchMode: FilterMatchMode.BETWEEN },
         verified: { value: null, matchMode: FilterMatchMode.EQUALS }
     };
-};
-
-initFilters();
-
-const formatDate = (value) => {
-    return value.toLocaleDateString('en-US', {
+  };
+  
+  initFilters();
+  
+  const formatDate = (value) => {
+    return value.toLocaleDateString('en-GB', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
     });
-};
-const formatCurrency = (value) => {
+  };
+  const formatCurrency = (value) => {
     return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-};
-const clearFilter = () => {
+  };
+  const clearFilter = () => {
     initFilters();
-};
-const getCustomers = (data) => {
+  };
+  const getCustomers = (data) => {
     return [...(data || [])].map((d) => {
         d.date = new Date(d.date);
-
         return d;
     });
-};
-const getSeverity = (status) => {
+  };
+  const getSeverity = (status) => {
     switch (status) {
         case 'unqualified':
             return 'danger';
-
         case 'qualified':
             return 'success';
-
         case 'new':
             return 'info';
-
         case 'negotiation':
             return 'warn';
-
         case 'renewal':
             return null;
     }
-};
-</script>
+  };
+  
+  // Data pelanggan palsu
+  const mockCustomerData = [
+    {
+        id: 1000,
+        name: 'James Butt',
+        country: { name: 'Algeria', code: 'dz' },
+        company: 'Benton, John B Jr',
+        date: '2015-09-13',
+        status: 'unqualified',
+        verified: true,
+        activity: 17,
+        representative: { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
+        balance: 70663
+    },
+    {
+        id: 1001,
+        name: 'Josephine Darakjy',
+        country: { name: 'Egypt', code: 'eg' },
+        company: 'Chanay, Jeffrey A Esq',
+        date: '2019-02-09',
+        status: 'negotiation',
+        verified: true,
+        activity: 0,
+        representative: { name: 'Amy Elsner', image: 'amyelsner.png' },
+        balance: 82429
+    },
+    {
+        id: 1002,
+        name: 'Art Venere',
+        country: { name: 'India', code: 'in' },
+        company: 'Chemel, James L Cpa',
+        date: '2015-11-05',
+        status: 'qualified',
+        verified: false,
+        activity: 63,
+        representative: { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
+        balance: 63704
+    }
+  
+  
+  
+  ];
+  </script>

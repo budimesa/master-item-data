@@ -1,238 +1,239 @@
 <template>
-  <div class="card">
-      <DataTable v-model:filters="filters" :value="customers" paginator showGridlines :rows="10" dataKey="id"
-              filterDisplay="menu" :loading="loading" :globalFilterFields="['name', 'country.name', 'representative.name', 'balance', 'status']">
-          <template #header>
-              <div class="flex justify-between">
-                  <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined @click="clearFilter()" />
-                  <IconField>
-                      <InputIcon>
-                          <i class="pi pi-search" />
-                      </InputIcon>
-                      <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
-                  </IconField>
-              </div>
+    <div class="card mx-4">
+        <Toolbar class="mb-6">
+          <template #start>
+            <Button label="New" icon="pi pi-plus" severity="success" class="mr-2" @click="openNew" />
+            <!-- <Button label="Delete" icon="pi pi-trash" severity="danger" @click="confirmDeleteSelected" :disabled="!selectedItems || !selectedItems.length" /> -->
           </template>
-          <template #empty> No customers found. </template>
-          <template #loading> Loading customers data. Please wait. </template>
-          <Column field="name" header="Name" style="min-width: 12rem">
-              <template #body="{ data }">
-                  {{ data.name }}
-              </template>
-              <template #filter="{ filterModel }">
-                  <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-              </template>
+          <template #end>
+            <Button label="Export" icon="pi pi-upload" severity="help" @click="exportCSV($event)" />
+          </template>
+        </Toolbar>
+        <DataTable v-model:filters="filters" :value="items" paginator :rows="10" dataKey="id" filterDisplay="menu" 
+                   :reorderableColumns="true" :loading="loading">
+          
+          <template #header>
+            <div class="flex flex-wrap gap-2 items-center justify-between">
+              <h4 class="m-0">Manage Brands</h4>
+              <IconField>
+                <InputIcon>
+                  <i class="pi pi-search" />
+                </InputIcon>
+                <InputText v-model="filters['global'].value" placeholder="Search..." />
+              </IconField>
+            </div>
+          </template>
+    
+          <Column field="no" header="No" style="min-width: 5rem">
+            <template #body="{ index }">
+              {{ index + 1 }}
+            </template>
           </Column>
-          <Column header="Country" filterField="country.name" style="min-width: 12rem">
-              <template #body="{ data }">
-                  <div class="flex items-center gap-2">
-                      <img alt="flag" src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png" :class="`flag flag-${data.country.code}`" style="width: 24px" />
-                      <span>{{ data.country.name }}</span>
-                  </div>
-              </template>
-              <template #filter="{ filterModel }">
-                  <InputText v-model="filterModel.value" type="text" placeholder="Search by country" />
-              </template>
-              <template #filterclear="{ filterCallback }">
-                  <Button type="button" icon="pi pi-times" @click="filterCallback()" severity="secondary"></Button>
-              </template>
-              <template #filterapply="{ filterCallback }">
-                  <Button type="button" icon="pi pi-check" @click="filterCallback()" severity="success"></Button>
-              </template>
-              <template #filterfooter>
-                  <div class="px-4 pt-0 pb-4 text-center">Customized Buttons</div>
-              </template>
+    
+          <Column field="brand_name" header="Brand Name" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ data.brand_name }}
+            </template>
+            <template #filter="{ filterModel, filterCallback }">
+              <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Search by name" />
+            </template>
           </Column>
-          <Column header="Agent" filterField="representative" :showFilterMatchModes="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
-              <template #body="{ data }">
-                  <div class="flex items-center gap-2">
-                      <img :alt="data.representative.name" :src="`https://primefaces.org/cdn/primevue/images/avatar/${data.representative.image}`" style="width: 32px" />
-                      <span>{{ data.representative.name }}</span>
-                  </div>
-              </template>
-              <template #filter="{ filterModel }">
-                  <MultiSelect v-model="filterModel.value" :options="representatives" optionLabel="name" placeholder="Any">
-                      <template #option="slotProps">
-                          <div class="flex items-center gap-2">
-                              <img :alt="slotProps.option.name" :src="`https://primefaces.org/cdn/primevue/images/avatar/${slotProps.option.image}`" style="width: 32px" />
-                              <span>{{ slotProps.option.name }}</span>
-                          </div>
-                      </template>
-                  </MultiSelect>
-              </template>
+    
+          <Column field="brand_code" header="Brand Code" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ data.brand_code }}
+            </template>
+            <template #filter="{ filterModel, filterCallback }">
+              <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Search by code" />
+            </template>
           </Column>
-          <Column header="Date" filterField="date" dataType="date" style="min-width: 10rem">
-              <template #body="{ data }">
-                  {{ formatDate(data.date) }}
-              </template>
-              <template #filter="{ filterModel }">
-                  <DatePicker v-model="filterModel.value" dateFormat="dd/mm/yy" placeholder="dd/mm/yyyy" />
-              </template>
+    
+          <Column field="created_at" header="Created At" dataType="date" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ formatDate(data.created_at) }}
+            </template>
+            <template #filter="{ filterModel }">
+              <DatePicker v-model="filterModel.value" dateFormat="mm/dd/yy" placeholder="mm/dd/yyyy" />
+            </template>
           </Column>
-          <Column header="Balance" filterField="balance" dataType="numeric" style="min-width: 10rem">
-              <template #body="{ data }">
-                  {{ formatCurrency(data.balance) }}
-              </template>
-              <template #filter="{ filterModel }">
-                  <InputNumber v-model="filterModel.value" mode="currency" currency="USD" locale="en-US" />
-              </template>
+    
+          <Column field="created_by" header="Created By" sortable style="min-width: 12rem"></Column>
+          <Column field="updated_at" header="Updated At" sortable style="min-width: 12rem"></Column>
+          <Column field="updated_by" header="Updated By" sortable style="min-width: 12rem"></Column>
+    
+          <Column :exportable="false" header="Actions" alignFrozen="right" frozen>
+            <template #body="slotProps">
+              <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="edit(slotProps.data)" />
+              <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDelete(slotProps.data)" />
+            </template>
           </Column>
-          <Column header="Status" field="status" :filterMenuStyle="{ width: '14rem' }" style="min-width: 12rem">
-              <template #body="{ data }">
-                  <Tag :value="data.status" :severity="getSeverity(data.status)" />
-              </template>
-              <template #filter="{ filterModel }">
-                  <Select v-model="filterModel.value" :options="statuses" placeholder="Select One" showClear>
-                      <template #option="slotProps">
-                          <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
-                      </template>
-                  </Select>
-              </template>
-          </Column>
-          <Column field="activity" header="Activity" :showFilterMatchModes="false" style="min-width: 12rem">
-              <template #body="{ data }">
-                  <ProgressBar :value="data.activity" :showValue="false" style="height: 6px"></ProgressBar>
-              </template>
-              <template #filter="{ filterModel }">
-                  <Slider v-model="filterModel.value" range class="m-4"></Slider>
-                  <div class="flex items-center justify-between px-2">
-                      <span>{{ filterModel.value ? filterModel.value[0] : 0 }}</span>
-                      <span>{{ filterModel.value ? filterModel.value[1] : 100 }}</span>
-                  </div>
-              </template>
-          </Column>
-          <Column field="verified" header="Verified" dataType="boolean" bodyClass="text-center" style="min-width: 8rem">
-              <template #body="{ data }">
-                  <i class="pi" :class="{ 'pi-check-circle text-green-500 ': data.verified, 'pi-times-circle text-red-500': !data.verified }"></i>
-              </template>
-              <template #filter="{ filterModel }">
-                  <label for="verified-filter" class="font-bold"> Verified </label>
-                  <Checkbox v-model="filterModel.value" :indeterminate="filterModel.value === null" binary inputId="verified-filter" />
-              </template>
-          </Column>
-      </DataTable>
-  </div>
-</template>
-
-<script setup>
-import { ref, onMounted } from 'vue';
-import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
-
-const customers = ref();
-const filters = ref();
-const representatives = ref([
-  { name: 'Amy Elsner', image: 'amyelsner.png' },
-  { name: 'Anna Fali', image: 'annafali.png' },
-  { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-  { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-  { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-  { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-  { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-  { name: 'Onyama Limba', image: 'onyamalimba.png' },
-  { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-  { name: 'XuXue Feng', image: 'xuxuefeng.png' }
-]);
-const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
-const loading = ref(true);
-
-onMounted(() => {
-  // Simulasi pemanggilan API
-  setTimeout(() => {
-      customers.value = getCustomers(mockCustomerData);
-      loading.value = false;
-  }, 1000);
-});
-
-const initFilters = () => {
-  filters.value = {
-      global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-      name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-      'country.name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-      representative: { value: null, matchMode: FilterMatchMode.IN },
-      date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-      balance: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-      status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-      activity: { value: [0, 100], matchMode: FilterMatchMode.BETWEEN },
-      verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+        </DataTable>
+    </div>
+  
+      <Dialog v-model:visible="formDialog" :style="{ width: '450px' }" header="Brand Details" :modal="true">
+        <div class="flex flex-col gap-6">
+          <div>
+            <label for="brand_code" class="block font-bold mb-3">Brand Code</label>
+            <InputText id="brand_code" v-model="item.brand_code" required autofocus :invalid="submitted && !item.brand_code" fluid />
+            <small v-if="submitted && !item.brand_code" class="text-red-500">Brand Code is required.</small>
+          </div>
+          <div>
+            <label for="brand_name" class="block font-bold mb-3">Brand Name</label>
+            <InputText id="brand_name" v-model.trim="item.brand_name" required fluid />
+            <small v-if="submitted && !item.brand_name" class="text-red-500">Brand Name is required.</small>
+          </div>
+        </div>
+  
+        <template #footer>
+          <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
+          <Button label="Save" icon="pi pi-check" @click="save" :disabled="isSaving" />
+        </template>
+      </Dialog>
+  
+        <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+            <div class="flex items-center gap-4">
+                <i class="pi pi-exclamation-triangle !text-3xl" />
+                <span v-if="item"
+                    >Are you sure you want to delete <b>{{ item.name }}</b
+                    >?</span
+                >
+            </div>
+            <template #footer>
+                <Button label="No" icon="pi pi-times" text @click="deleteDialog = false" />
+                <Button label="Yes" icon="pi pi-check" @click="deleteItem" />
+            </template>
+        </Dialog>
+  
+        <Dialog v-model:visible="deleteBulkDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+            <div class="flex items-center gap-4">
+                <i class="pi pi-exclamation-triangle !text-3xl" />
+                <span v-if="item">Are you sure you want to delete the selected brands?</span>
+            </div>
+            <template #footer>
+                <Button label="No" icon="pi pi-times" text @click="deleteBulkDialog = false" />
+                <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedItems" />
+            </template>
+        </Dialog>
+  </template>
+  
+  <script setup>
+  import { ref, onMounted } from 'vue';
+  import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
+  import { useToast } from 'primevue/usetoast';
+  import axios from 'axios';
+  
+  onMounted(() => {
+    fetchData();
+  });
+  
+  const fetchData = async () => {
+      try {
+          const response = await axios.get(route('brands.index'));
+          items.value = response.data.brands;
+      } catch (error) {
+          console.error('Error fetching brands:', error);
+      } finally {
+            loading.value = false;
+      }
   };
-};
-
-initFilters();
-
-const formatDate = (value) => {
-  return value.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+  const toast = useToast();
+  const dt = ref();
+  const loading = ref(true);
+  const items = ref([]);
+  const formDialog = ref(false);
+  const deleteDialog = ref(false);
+  const deleteBulkDialog = ref(false);
+  const item = ref({});
+  const selectedItems = ref([]);
+  const filters = ref({
+      global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+      brand_name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+      brand_code: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+      created_at: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
   });
-};
-const formatCurrency = (value) => {
-  return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-};
-const clearFilter = () => {
-  initFilters();
-};
-const getCustomers = (data) => {
-  return [...(data || [])].map((d) => {
-      d.date = new Date(d.date);
-      return d;
-  });
-};
-const getSeverity = (status) => {
-  switch (status) {
-      case 'unqualified':
-          return 'danger';
-      case 'qualified':
-          return 'success';
-      case 'new':
-          return 'info';
-      case 'negotiation':
-          return 'warn';
-      case 'renewal':
-          return null;
-  }
-};
-
-// Data pelanggan palsu
-const mockCustomerData = [
-  {
-      id: 1000,
-      name: 'James Butt',
-      country: { name: 'Algeria', code: 'dz' },
-      company: 'Benton, John B Jr',
-      date: '2015-09-13',
-      status: 'unqualified',
-      verified: true,
-      activity: 17,
-      representative: { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-      balance: 70663
-  },
-  {
-      id: 1001,
-      name: 'Josephine Darakjy',
-      country: { name: 'Egypt', code: 'eg' },
-      company: 'Chanay, Jeffrey A Esq',
-      date: '2019-02-09',
-      status: 'negotiation',
-      verified: true,
-      activity: 0,
-      representative: { name: 'Amy Elsner', image: 'amyelsner.png' },
-      balance: 82429
-  },
-  {
-      id: 1002,
-      name: 'Art Venere',
-      country: { name: 'India', code: 'in' },
-      company: 'Chemel, James L Cpa',
-      date: '2015-11-05',
-      status: 'qualified',
-      verified: false,
-      activity: 63,
-      representative: { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-      balance: 63704
-  }
-
-
-
-];
-</script>
+  const submitted = ref(false);
+  const isEditMode = ref(false);
+  const isSaving = ref(false);
+  
+  const formatDate = (date) => {
+    if (!date) return '-';
+    const d = new Date(date);
+    const month = String(d.getMonth() + 1).padStart(2, '0'); // Bulan dimulai dari 0
+    const day = String(d.getDate()).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${month}/${day}/${year}`; // Mengembalikan mm/dd/yyyy
+  };
+  
+  const openNew = () => {
+      item.value = { brand_name: '', brand_code: '' };
+      submitted.value = false;
+      isEditMode.value = false;
+      formDialog.value = true;
+  };
+  const hideDialog = () => {
+    formDialog.value = false;
+    submitted.value = false;
+  };
+  const save = async () => {
+    submitted.value = true;
+    if (item.value.brand_name.trim() && item.value.brand_code.trim()) {
+      isSaving.value = true; // Set to true before starting the process
+      try {
+        if (isEditMode.value) {
+          await axios.put(route('brands.update', item.value.id), {
+            brand_name: item.value.brand_name,
+            brand_code: item.value.brand_code,
+          });
+          toast.add({ severity: 'success', summary: 'Success', detail: 'Brand updated successfully', life: 3000 });
+        } else {
+          await axios.post(route('brands.store'), {
+            brand_name: item.value.brand_name,
+            brand_code: item.value.brand_code,
+          });
+          toast.add({ severity: 'success', summary: 'Success', detail: 'Brand created successfully', life: 3000 });
+        }
+        fetchData();
+        hideDialog();
+      } catch (error) {
+        console.error('Error saving brand:', error.response.data);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save brand', life: 3000 });
+      } finally {
+        isSaving.value = false; // Set to false after the process is complete
+      }
+    }
+  };
+  const edit = (brandData) => {
+    item.value = { ...brandData };
+    submitted.value = false;
+    isEditMode.value = true;
+    formDialog.value = true;
+  };
+  const confirmDelete = (emp) => {
+    item.value = emp;
+    deleteDialog.value = true;
+  };
+  const deleteItem = async () => {
+    await axios.delete(route('brands.destroy', item.value.id));
+    deleteDialog.value = false;
+    fetchData();
+    toast.add({severity:'success', summary: 'Successful', detail: 'Brand Deleted', life: 3000});
+  };
+  
+  const exportCSV = () => {
+    dt.value.exportCSV();
+  };
+  const confirmDeleteSelected = () => {
+    deleteBulkDialog.value = true;
+  };
+  const deleteSelectedItems = () => {
+    items.value = items.value.filter((val) => !selectedItems.value.includes(val));
+    deleteBulkDialog.value = false;
+    selectedItems.value = null;
+    toast.add({severity:'success', summary: 'Successful', detail: 'Brands Deleted', life: 3000});
+  };
+  </script>
+  
+  <style scoped>
+  
+  
+  </style>

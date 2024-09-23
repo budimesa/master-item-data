@@ -1,11 +1,11 @@
 <template>
-  <aside :class="['transition-width duration-300', isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black', isCollapsed ? 'w-0' : 'w-64']">
+    <aside :class="['transition-width duration-300 border-r', isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black', isCollapsed ? 'w-14' : 'w-64']">
     <div class="h-full px-2 py-6">
       <nav>
         <ul class="space-y-2">
           <li>
             <router-link to="/dashboard" class="flex items-center p-2 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-700">
-              <i class="pi pi-home" v-if="!isCollapsed"></i>
+              <i class="pi pi-home"></i>
               <transition name="fade">
                 <span v-if="!isCollapsed" class="ml-3">Dashboard</span>
               </transition>
@@ -14,7 +14,7 @@
           <li>
             <div @click="toggleMasterMenu" class="flex items-center justify-between p-2 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
               <div class="flex items-center">
-                <i class="pi pi-server" v-if="!isCollapsed"></i>
+                <i class="pi pi-server"></i>
                 <transition name="fade">
                   <span v-if="!isCollapsed" class="ml-3">Master</span>
                 </transition>
@@ -59,26 +59,21 @@
       </nav>
     </div>
   </aside>
-</template>
-
-<script setup>
-import { Link } from '@inertiajs/vue3';
-import { ref, inject, defineProps } from 'vue';
-
-const props = defineProps({
-  isCollapsed: {
-    type: Boolean,
-    required: true
+  
+  </template>
+  
+  <script setup>
+  import { Link } from '@inertiajs/vue3';
+  import { ref, inject } from 'vue';
+  import { useRoute } from 'vue-router';
+  
+  // const route = useRoute();
+  // console.log(route.params)
+  
+  const isDarkMode = inject('isDarkMode', ref(false));
+  const isMasterMenuOpen = ref(true);
+  function toggleMasterMenu() {
+    isMasterMenuOpen.value = !isMasterMenuOpen.value;
   }
-});
-
-const isDarkMode = inject('isDarkMode', ref(false));
-const isMasterMenuOpen = ref(true);
-
-function toggleMasterMenu() {
-  isMasterMenuOpen.value = !isMasterMenuOpen.value;
-}
-</script>
-<style>
-
-</style>
+  </script>
+  
